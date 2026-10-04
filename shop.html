@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#16302B">
+<title>نظام المبيعات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16302B; --ink-soft:#4C625D; --paper:#EDF1EF; --card:#FFFFFF;
+    --line:#D5DDDA; --accent:#1B7F5C; --danger:#B3392F;
+    --radius-lg:18px; --radius-sm:10px;
+    --font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,"Noto Sans Arabic",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0}
+  [hidden]{display:none !important}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:var(--font);background:var(--paper);color:var(--ink);line-height:1.6;min-height:100vh;padding-bottom:96px}
+  button,input,select{font:inherit;color:inherit}
+  button{cursor:pointer}
+  :focus-visible{outline:3px solid #F2B84B;outline-offset:2px}
+  .wrap{max-width:640px;margin:0 auto;padding:0 16px}
+
+  .top{background:var(--ink);color:#fff;padding:20px 0 22px}
+  .top h1{font-size:1.25rem;font-weight:700}
+  .top p{color:#A9C2BB;font-size:.88rem}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:16px;margin-top:14px}
+  .panel h2{font-size:1.02rem;font-weight:600;margin-bottom:12px}
+  .field{margin-bottom:12px}
+  .field > label,.field > .lbl{display:block;font-size:.88rem;font-weight:500;margin-bottom:5px}
+  .input{width:100%;border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 12px;background:#fff}
+  .input:focus{border-color:var(--accent)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .btn{border:0;border-radius:var(--radius-sm);padding:13px 18px;background:var(--accent);color:#fff;font-weight:600;width:100%}
+  .btn:hover{background:#166a4d}
+  .btn:disabled{background:#9BB5AC;cursor:not-allowed}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);width:auto}
+  .btn.ghost:hover{background:var(--paper)}
+  .btn.danger{background:transparent;color:var(--danger);border:1px solid var(--line);width:auto}
+  .row-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .mini{border:0;background:transparent;color:var(--ink-soft);padding:6px 8px;border-radius:8px;font-size:.82rem}
+  .mini:hover{background:var(--paper);color:var(--ink)}
+  .mini.del:hover{color:var(--danger)}
+  .empty-note{color:var(--ink-soft);font-size:.9rem;padding:10px 2px}
+  .error{color:var(--danger);font-size:.85rem;min-height:1.2em;margin-bottom:8px}
+
+  /* نوع الدفع */
+  .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .seg label{position:relative}
+  .seg input{position:absolute;opacity:0;inset:0;cursor:pointer}
+  .seg span{display:block;text-align:center;padding:10px;border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;font-weight:500}
+  .seg input:checked + span{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .seg input:focus-visible + span{outline:3px solid #F2B84B;outline-offset:2px}
+
+  /* نتائج الأصناف */
+  .results{display:grid;gap:6px;margin-top:10px}
+  .pick{display:flex;align-items:center;gap:10px;text-align:right;width:100%;border:1px solid var(--line);background:#fff;border-radius:var(--radius-sm);padding:10px 12px}
+  .pick:hover{background:var(--paper)}
+  .pick .p-name{flex:1;min-width:0;font-weight:500}
+  .pick .p-cat{font-size:.78rem;color:var(--ink-soft)}
+  .pick .p-price{font-weight:700;direction:ltr}
+
+  /* سطور الفاتورة */
+  .line{border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;background:#fff}
+  .l-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .l-name{font-weight:600}
+  .l-bot{display:flex;align-items:center;gap:12px;margin-top:6px;flex-wrap:wrap}
+  .stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden}
+  .stepper button{width:38px;height:38px;border:0;background:var(--paper);font-size:1.2rem}
+  .stepper button:hover{background:#dfe7e4}
+  .stepper input{width:64px;height:38px;border:0;text-align:center;font-weight:600;background:#fff}
+  .l-price{color:var(--ink-soft);direction:ltr}
+  .l-val{margin-inline-start:auto;font-weight:700;direction:ltr}
+
+  .totals{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+  .t-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0}
+  .t-row.big strong{font-size:1.5rem;direction:ltr}
+  .t-row input{width:140px;text-align:left;direction:ltr}
+  .t-row.rem strong{color:var(--danger);direction:ltr}
+  .hint{font-size:.82rem;color:var(--ink-soft)}
+
+  /* الأصناف */
+  .group{margin-top:16px}
+  .group h3{font-size:.95rem;font-weight:600;padding:0 4px 6px}
+  .list{list-style:none;padding:0;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+  .it{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line)}
+  .it:last-child{border-bottom:0}
+  .it .name{flex:1;min-width:0;font-weight:500}
+  .it .price{font-weight:700;direction:ltr}
+
+  /* سجل الفواتير */
+  .inv-row{display:flex;align-items:center;gap:12px;width:100%;text-align:right;border:1px solid var(--line);background:#fff;border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px}
+  .inv-row:hover{background:var(--paper)}
+  .inv-row .no{font-weight:700;min-width:44px}
+  .inv-row .mid{flex:1;min-width:0}
+  .inv-row .cust{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .inv-row .when{font-size:.78rem;color:var(--ink-soft)}
+  .inv-row .amt{text-align:left;direction:ltr;font-weight:700}
+  .inv-row .rem{display:block;font-size:.78rem;color:var(--danger);font-weight:600}
+  .badge{font-size:.72rem;border-radius:99px;padding:1px 8px;border:1px solid var(--line);color:var(--ink-soft);margin-inline-start:6px}
+  .badge.credit{border-color:#E7B5AF;color:var(--danger)}
+
+  /* عرض الفاتورة */
+  .modal{position:fixed;inset:0;background:rgba(22,48,43,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+  .sheet{background:#fff;width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 18px 22px}
+  .inv-shop{text-align:center;font-size:1.15rem;font-weight:700}
+  .inv-title{text-align:center;font-weight:600;color:var(--ink-soft);margin-bottom:10px}
+  .inv-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:.88rem;margin-bottom:6px}
+  .inv-cust{font-size:.92rem;margin-bottom:8px}
+  .inv table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.92rem}
+  .inv th{background:var(--paper);font-weight:600;text-align:right;padding:7px 8px;border:1px solid var(--line)}
+  .inv td{padding:7px 8px;border:1px solid var(--line)}
+  .inv td.n{direction:ltr;text-align:left;white-space:nowrap}
+  .inv-sum{margin-top:8px}
+  .inv-sum div{display:flex;justify-content:space-between;padding:3px 0}
+  .inv-sum b{direction:ltr}
+  .inv-sum .tot{font-size:1.15rem;font-weight:700;border-top:2px solid var(--ink);margin-top:4px;padding-top:6px}
+  .inv-sum .remn{color:var(--danger);font-weight:700}
+  .sheet-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+
+  /* شريط التبويبات */
+  .tabs{position:fixed;inset-inline:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);z-index:10}
+  .tabs button{border:0;background:transparent;padding:14px 6px;font-weight:600;color:var(--ink-soft);border-top:3px solid transparent}
+  .tabs button[aria-selected="true"]{color:var(--accent);border-top-color:var(--accent)}
+
+  .toast{position:fixed;inset-inline:16px;bottom:78px;max-width:420px;margin-inline:auto;background:var(--ink);color:#fff;border-radius:14px;padding:11px 16px;z-index:30;opacity:0;pointer-events:none;transition:opacity .2s ease}
+  .toast.show{opacity:1}
+
+  @media (max-width:420px){ .two{grid-template-columns:1fr} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <h1 id="shopName"></h1>
+    <p>نظام المبيعات</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ===== فاتورة جديدة ===== -->
+  <section class="view" id="view-new">
+    <div class="panel">
+      <h2>فاتورة جديدة</h2>
+      <div class="field">
+        <label for="customer">اسم العميل (اختياري)</label>
+        <input class="input" id="customer" type="text" maxlength="60" autocomplete="off" placeholder="مثال: أحمد محمد">
+      </div>
+      <div class="field">
+        <span class="lbl" id="payLbl">نوع الفاتورة</span>
+        <div class="seg" role="radiogroup" aria-labelledby="payLbl">
+          <label><input type="radio" name="pay" value="cash" checked><span>نقدي</span></label>
+          <label><input type="radio" name="pay" value="credit"><span>أجل</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>إضافة صنف</h2>
+      <input class="input" id="search" type="search" placeholder="ابحث باسم الصنف أو الفئة…" autocomplete="off" aria-label="بحث عن صنف">
+      <div class="results" id="results"></div>
+    </div>
+
+    <div class="panel">
+      <h2>أصناف الفاتورة <span id="cartCount" class="hint"></span></h2>
+      <div id="cart"></div>
+      <div class="totals">
+        <div class="t-row big"><span>الإجمالي (د.ل)</span><strong id="total">0</strong></div>
+        <div class="t-row" id="paidRow" hidden>
+          <label for="paid">المدفوع الآن</label>
+          <input class="input" id="paid" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+        </div>
+        <div class="hint" id="paidHint"></div>
+        <div class="t-row rem" id="remRow" hidden><span>المتبقي</span><strong id="remaining">0</strong></div>
+      </div>
+      <div class="error" id="saveErr" role="alert"></div>
+      <button class="btn" id="saveBtn" type="button" disabled>حفظ الفاتورة</button>
+    </div>
+  </section>
+
+  <!-- ===== الأصناف ===== -->
+  <section class="view" id="view-items" hidden>
+    <div class="panel">
+      <h2 id="itemFormTitle">إضافة صنف</h2>
+      <form id="itemForm" novalidate>
+        <div class="field">
+          <label for="itemName">اسم الصنف</label>
+          <input class="input" id="itemName" type="text" maxlength="80" autocomplete="off">
+        </div>
+        <div class="two">
+          <div class="field">
+            <label for="itemPrice">السعر (د.ل)</label>
+            <input class="input" id="itemPrice" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+          </div>
+          <div class="field">
+            <label for="itemCat">الفئة</label>
+            <input class="input" id="itemCat" type="text" list="catList" maxlength="40" autocomplete="off" placeholder="اختر أو اكتب فئة">
+            <datalist id="catList"></datalist>
+          </div>
+        </div>
+        <div class="error" id="itemErr" role="alert"></div>
+        <div class="row-actions">
+          <button class="btn" id="itemSubmit" type="submit" style="flex:1">إضافة الصنف</button>
+          <button class="btn ghost" id="itemCancel" type="button" hidden>إلغاء</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>قائمة الأصناف <span id="itemCount" class="hint"></span></h2>
+      <input class="input" id="itemSearch" type="search" placeholder="بحث في الأصناف…" autocomplete="off" aria-label="بحث في الأصناف">
+      <div id="itemsBox"></div>
+    </div>
+  </section>
+
+  <!-- ===== سجل الفواتير ===== -->
+  <section class="view" id="view-list" hidden>
+    <div class="panel">
+      <h2>الفواتير المحفوظة <span id="invCount" class="hint"></span></h2>
+      <input class="input" id="invSearch" type="search" placeholder="بحث برقم الفاتورة أو اسم العميل…" autocomplete="off" aria-label="بحث في الفواتير">
+      <div id="invBox" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+</main>
+
+<nav class="tabs" aria-label="التنقل">
+  <button type="button" data-tab="new" aria-selected="true">فاتورة جديدة</button>
+  <button type="button" data-tab="items" aria-selected="false">الأصناف</button>
+  <button type="button" data-tab="list" aria-selected="false">الفواتير</button>
+</nav>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="الفاتورة"></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  const KEY = "shop-v1";
+  const SHOP = "القبائلي للامونيوم ومستلزماته";
+  const DEF_CATS = ["ألمنيوم","زجاج","إكسسوارات"];
+  const LOC = "ar-LY-u-nu-latn";
+
+  /* ---------- التخزين ---------- */
+  let memBackup = null;
+  function load(){
+    try{
+      const raw = localStorage.getItem(KEY);
+      if(raw){
+        const d = JSON.parse(raw);
+        if(d && Array.isArray(d.items) && Array.isArray(d.invoices)){
+          d.nextNo = d.nextNo || (d.invoices.reduce((m,i)=>Math.max(m,i.no),0) + 1);
+          return d;
+        }
+      }
+    }catch(e){ if(memBackup) return memBackup; }
+    return {items:[], invoices:[], nextNo:1};
+  }
+  function save(){
+    try{ localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch(e){ memBackup = JSON.parse(JSON.stringify(state)); }
+  }
+
+  /* ---------- أدوات ---------- */
+  const $ = id => document.getElementById(id);
+  const nf = new Intl.NumberFormat("en-US",{maximumFractionDigits:3});
+  const fmt = n => nf.format(n);
+  const r3 = n => Math.round(n*1000)/1000;
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  // توحيد الحروف لتسهيل البحث (أ إ آ ← ا ، ة ← ه ، ى ← ي)
+  const norm = s => String(s||"").toLowerCase()
+    .replace(/[\u064B-\u0652\u0640]/g,"")
+    .replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي");
+  const fmtDate = ts => new Date(ts).toLocaleDateString(LOC,{year:"numeric",month:"2-digit",day:"2-digit"});
+  const fmtTime = ts => new Date(ts).toLocaleTimeString(LOC,{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true});
+
+  let toastTimer = null;
+  function toast(msg){
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 1400);
+  }
+
+  /* ---------- الحالة ---------- */
+  const state = load();
+  let cart = [];
+  let payType = "cash";
+  let editingItem = null;
+
+  $("shopName").textContent = SHOP;
+
+  /* ---------- التبويبات ---------- */
+  function showTab(t){
+    document.querySelectorAll(".view").forEach(v => v.hidden = (v.id !== "view-" + t));
+    document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
+    if(t === "items") renderItems();
+    if(t === "list") renderList();
+    if(t === "new") renderResults();
+    window.scrollTo(0,0);
+  }
+  document.querySelector(".tabs").addEventListener("click", e => {
+    const b = e.target.closest("button[data-tab]");
+    if(b) showTab(b.dataset.tab);
+  });
+
+  /* =====================================================
+     المرحلة 1: الأصناف
+     ===================================================== */
+  function allCats(){
+    const s = new Set(DEF_CATS);
+    state.items.forEach(i => i.cat && s.add(i.cat));
+    return Array.from(s);
+  }
+  function renderCatList(){
+    $("catList").innerHTML = allCats().map(c => `<option value="${esc(c)}"></option>`).join("");
+  }
+
+  function renderItems(){
+    renderCatList();
+    $("itemCount").textContent = state.items.length ? "(" + state.items.length + ")" : "";
+    const q = norm($("itemSearch").value.trim());
+    const list = state.items.filter(i => !q || norm(i.name).includes(q) || norm(i.cat).includes(q));
+    const box = $("itemsBox");
+    if(!state.items.length){
+      box.innerHTML = `<div class="empty-note">لا توجد أصناف بعد. أضف أول صنف من النموذج أعلاه.</div>`;
+      return;
+    }
+    if(!list.length){
+      box.innerHTML = `<div class="empty-note">لا توجد نتائج مطابقة.</div>`;
+      return;
+    }
+    const groups = {};
+    list.forEach(i => (groups[i.cat || "بدون فئة"] = groups[i.cat || "بدون فئة"] || []).push(i));
+    box.innerHTML = Object.keys(groups).sort((a,b)=>a.localeCompare(b,"ar")).map(g => `
+      <div class="group">
+        <h3>${esc(g)}</h3>
+        <ul class="list">${groups[g].sort((a,b)=>a.name.localeCompare(b.name,"ar")).map(i => `
+          <li class="it">
+            <span class="name">${esc(i.name)}</span>
+            <span class="price">${fmt(i.price)}</span>
+            <button class="mini" type="button" data-act="edit" data-id="${i.id}" aria-label="تعديل الصنف">تعديل</button>
+            <button class="mini del" type="button" data-act="del" data-id="${i.id}" aria-label="حذف الصنف">حذف</button>
+          </li>`).join("")}
+        </ul>
+      </div>`).join("");
+  }
+
+  function resetItemForm(){
+    editingItem = null;
+    $("itemName").value = "";
+    $("itemPrice").value = "";
+    $("itemCat").value = "";
+    $("itemErr").textContent = "";
+    $("itemFormTitle").textContent = "إضافة صنف";
+    $("itemSubmit").textContent = "إضافة الصنف";
+    $("itemCancel").hidden = true;
+  }
+
+  $("itemForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const name = $("itemName").value.trim();
+    const price = parseFloat($("itemPrice").value);
+    const cat = $("itemCat").value.trim();
+    if(!name){ $("itemErr").textContent = "اكتب اسم الصنف."; $("itemName").focus(); return; }
+    if(!(price >= 0) || isNaN(price)){ $("itemErr").textContent = "أدخل سعراً صحيحاً."; $("itemPrice").focus(); return; }
+    const dup = state.items.some(i => i.id !== editingItem && norm(i.name) === norm(name) && norm(i.cat) === norm(cat));
+    if(dup){ $("itemErr").textContent = "هذا الصنف موجود بالفعل في نفس الفئة."; return; }
+
+    if(editingItem !== null){
+      const it = state.items.find(i => i.id === editingItem);
+      if(it){ it.name = name; it.price = price; it.cat = cat; }
+      toast("تم حفظ التعديل");
+    }else{
+      state.items.push({id: Date.now(), name, price, cat});
+      toast("تمت إضافة الصنف");
+    }
+    save();
+    resetItemForm();
+    renderItems();
+    $("itemName").focus();
+  });
+  $("itemCancel").addEventListener("click", resetItemForm);
+  $("itemSearch").addEventListener("input", renderItems);
+
+  $("itemsBox").addEventListener("click", e => {
+    const b = e.target.closest("button[data-act]");
+    if(!b) return;
+    const id = Number(b.dataset.id);
+    const it = state.items.find(i => i.id === id);
+    if(!it) return;
+    if(b.dataset.act === "edit"){
+      editingItem = id;
+      $("itemName").value = it.name;
+      $("itemPrice").value = it.price;
+      $("itemCat").value = it.cat || "";
+      $("itemErr").textContent = "";
+      $("itemFormTitle").textContent = "تعديل الصنف";
+      $("itemSubmit").textContent = "حفظ التعديل";
+      $("itemCancel").hidden = false;
+      $("itemFormTitle").scrollIntoView({behavior:"smooth", block:"center"});
+    }else{
+      if(!confirm("حذف الصنف «" + it.name + "»؟ الفواتير السابقة لن تتأثر.")) return;
+      state.items = state.items.filter(i => i.id !== id);
+      cart = cart.filter(l => l.itemId !== id);
+      if(editingItem === id) resetItemForm();
+      save();
+      renderItems();
+      renderCart();
+    }
+  });
+
+  /* =====================================================
+     المرحلة 2: فاتورة المبيعات
+     ===================================================== */
+  function renderResults(){
+    const box = $("results");
+    if(!state.items.length){
+      box.innerHTML = `<div class="empty-note">لا توجد أصناف بعد. أضفها أولاً من تبويب «الأصناف».</div>`;
+      return;
+    }
+    const q = norm($("search").value.trim());
+    const list = state.items
+      .filter(i => !q || norm(i.name).includes(q) || norm(i.cat).includes(q))
+      .sort((a,b)=>a.name.localeCompare(b.name,"ar"))
+      .slice(0, 12);
+    box.innerHTML = list.length
+      ? list.map(i => `<button type="button" class="pick" data-id="${i.id}">
+          <span class="p-name">${esc(i.name)}</span>
+          <span class="p-cat">${esc(i.cat || "")}</span>
+          <span class="p-price">${fmt(i.price)}</span>
+        </button>`).join("")
+      : `<div class="empty-note">لا توجد نتائج مطابقة.</div>`;
+  }
+  $("search").addEventListener("input", renderResults);
+
+  $("results").addEventListener("click", e => {
+    const b = e.target.closest(".pick");
+    if(!b) return;
+    const it = state.items.find(i => i.id === Number(b.dataset.id));
+    if(!it) return;
+    const line = cart.find(l => l.itemId === it.id);
+    if(line) line.qty = r3(line.qty + 1);
+    else cart.push({itemId: it.id, name: it.name, price: it.price, qty: 1});
+    renderCart();
+    toast("أُضيف: " + it.name);
+  });
+
+  function calc(){
+    const total = r3(cart.reduce((s,l) => s + l.qty * l.price, 0));
+    const credit = payType === "credit";
+    const rawPaid = Math.max(0, parseFloat($("paid").value) || 0);
+    const paid = credit ? Math.min(total, rawPaid) : total;
+    return {total, credit, rawPaid, paid, rem: r3(total - paid)};
+  }
+
+  function updateTotals(){
+    const c = calc();
+    $("total").textContent = fmt(c.total);
+    $("paidRow").hidden = !c.credit;
+    $("remRow").hidden = !(c.credit && c.total > 0);
+    $("remaining").textContent = fmt(c.rem);
+    $("paidHint").textContent = (c.credit && c.rawPaid > c.total && c.total > 0)
+      ? "المدفوع أكبر من الإجمالي، سيُعتمد مبلغ الإجمالي فقط." : "";
+    $("saveBtn").disabled = !cart.length;
+    $("saveErr").textContent = "";
+  }
+
+  function renderCart(){
+    const box = $("cart");
+    $("cartCount").textContent = cart.length ? "(" + cart.length + ")" : "";
+    if(!cart.length){
+      box.innerHTML = `<div class="empty-note">اختر الأصناف من القائمة أعلاه لإضافتها إلى الفاتورة.</div>`;
+    }else{
+      box.innerHTML = cart.map((l,i) => `
+        <div class="line" data-i="${i}">
+          <div class="l-top">
+            <span class="l-name">${esc(l.name)}</span>
+            <button type="button" class="mini del" data-act="rm" aria-label="حذف السطر">حذف</button>
+          </div>
+          <div class="l-bot">
+            <div class="stepper">
+              <button type="button" data-act="inc" aria-label="زيادة الكمية">+</button>
+              <input type="number" inputmode="decimal" min="0" step="any" value="${l.qty}" data-act="qty" aria-label="الكمية">
+              <button type="button" data-act="dec" aria-label="إنقاص الكمية">−</button>
+            </div>
+            <span class="l-price">× ${fmt(l.price)}</span>
+            <strong class="l-val">${fmt(r3(l.qty * l.price))}</strong>
+          </div>
+        </div>`).join("");
+    }
+    updateTotals();
+  }
+
+  $("cart").addEventListener("click", e => {
+    const b = e.target.closest("button[data-act]");
+    if(!b) return;
+    const i = Number(b.closest(".line").dataset.i);
+    const l = cart[i];
+    if(!l) return;
+    if(b.dataset.act === "rm") cart.splice(i,1);
+    else if(b.dataset.act === "inc") l.qty = r3(l.qty + 1);
+    else if(b.dataset.act === "dec") l.qty = l.qty > 1 ? r3(l.qty - 1) : l.qty;
+    renderCart();
+  });
+  $("cart").addEventListener("input", e => {
+    if(e.target.dataset.act !== "qty") return;
+    const line = e.target.closest(".line");
+    const l = cart[Number(line.dataset.i)];
+    if(!l) return;
+    l.qty = parseFloat(e.target.value) || 0;
+    line.querySelector(".l-val").textContent = fmt(r3(l.qty * l.price));
+    updateTotals();
+  });
+
+  document.querySelectorAll('input[name="pay"]').forEach(r => r.addEventListener("change", () => {
+    payType = r.value;
+    if(payType !== "credit") $("paid").value = "";
+    updateTotals();
+  }));
+  $("paid").addEventListener("input", updateTotals);
+
+  function resetInvoice(){
+    cart = [];
+    payType = "cash";
+    document.querySelector('input[name="pay"][value="cash"]').checked = true;
+    $("customer").value = "";
+    $("paid").value = "";
+    $("search").value = "";
+    renderCart();
+    renderResults();
+  }
+
+  $("saveBtn").addEventListener("click", () => {
+    if(!cart.length) return;
+    if(cart.some(l => !(l.qty > 0))){
+      $("saveErr").textContent = "تأكد أن كمية كل صنف أكبر من صفر.";
+      return;
+    }
+    const c = calc();
+    const inv = {
+      no: state.nextNo,
+      ts: Date.now(),
+      customer: $("customer").value.trim(),
+      type: payType,
+      lines: cart.map(l => ({name: l.name, price: l.price, qty: l.qty, value: r3(l.qty * l.price)})),
+      total: c.total,
+      paid: c.paid,
+      remaining: c.rem
+    };
+    state.invoices.push(inv);
+    state.nextNo++;
+    save();
+    resetInvoice();
+    openInvoice(inv, true);
+  });
+
+  /* ---------- عرض الفاتورة ---------- */
+  function invoiceHTML(inv){
+    const credit = inv.type === "credit";
+    const rows = inv.lines.map(l => `<tr>
+        <td>${esc(l.name)}</td>
+        <td class="n">${fmt(l.qty)}</td>
+        <td class="n">${fmt(l.price)}</td>
+        <td class="n">${fmt(l.value)}</td>
+      </tr>`).join("");
+    return `<div class="inv">
+      <div class="inv-shop">${esc(SHOP)}</div>
+      <div class="inv-title">فاتورة مبيعات${credit ? " أجل" : ""}</div>
+      <div class="inv-meta">
+        <span>رقم الفاتورة: <b>${inv.no}</b></span>
+        <span>${fmtDate(inv.ts)} ${fmtTime(inv.ts)}</span>
+      </div>
+      ${inv.customer ? `<div class="inv-cust">العميل: <b>${esc(inv.customer)}</b></div>` : ""}
+      <table>
+        <thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>القيمة</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="inv-sum">
+        <div class="tot"><span>الإجمالي</span><b>${fmt(inv.total)} د.ل</b></div>
+        ${credit ? `<div><span>المدفوع</span><b>${fmt(inv.paid)} د.ل</b></div>` : ""}
+        ${inv.remaining > 0 ? `<div class="remn"><span>المتبقي</span><b>${fmt(inv.remaining)} د.ل</b></div>` : ""}
+      </div>
+    </div>`;
+  }
+
+  function openInvoice(inv, justSaved){
+    $("sheet").innerHTML = invoiceHTML(inv) + `
+      <div class="sheet-actions">
+        ${justSaved
+          ? `<button class="btn" type="button" data-act="close" style="flex:1">فاتورة جديدة</button>`
+          : `<button class="btn" type="button" data-act="close" style="flex:1">إغلاق</button>
+             <button class="btn danger" type="button" data-act="delinv" data-no="${inv.no}">حذف الفاتورة</button>`}
+      </div>`;
+    $("modal").hidden = false;
+    document.body.style.overflow = "hidden";
+  }
+  function closeModal(){
+    $("modal").hidden = true;
+    document.body.style.overflow = "";
+  }
+  $("modal").addEventListener("click", e => {
+    if(e.target === $("modal")) { closeModal(); return; }
+    const b = e.target.closest("button[data-act]");
+    if(!b) return;
+    if(b.dataset.act === "close") closeModal();
+    if(b.dataset.act === "delinv"){
+      const no = Number(b.dataset.no);
+      if(!confirm("حذف الفاتورة رقم " + no + " نهائياً؟")) return;
+      state.invoices = state.invoices.filter(i => i.no !== no);
+      save();
+      closeModal();
+      renderList();
+      toast("تم حذف الفاتورة");
+    }
+  });
+  document.addEventListener("keydown", e => { if(e.key === "Escape" && !$("modal").hidden) closeModal(); });
+
+  /* ---------- سجل الفواتير (نسخة أولية) ---------- */
+  function renderList(){
+    $("invCount").textContent = state.invoices.length ? "(" + state.invoices.length + ")" : "";
+    const q = norm($("invSearch").value.trim());
+    const list = state.invoices
+      .filter(i => !q || String(i.no) === q || norm(i.customer).includes(q))
+      .sort((a,b) => b.no - a.no);
+    const box = $("invBox");
+    if(!state.invoices.length){
+      box.innerHTML = `<div class="empty-note">لا توجد فواتير محفوظة بعد.</div>`;
+      return;
+    }
+    if(!list.length){
+      box.innerHTML = `<div class="empty-note">لا توجد نتائج مطابقة.</div>`;
+      return;
+    }
+    box.innerHTML = list.map(i => `
+      <button type="button" class="inv-row" data-no="${i.no}">
+        <span class="no">${i.no}</span>
+        <span class="mid">
+          <span class="cust">${i.customer ? esc(i.customer) : "بدون اسم"}<span class="badge ${i.type === "credit" ? "credit" : ""}">${i.type === "credit" ? "أجل" : "نقدي"}</span></span>
+          <span class="when">${fmtDate(i.ts)} ${fmtTime(i.ts)}</span>
+        </span>
+        <span class="amt">${fmt(i.total)}${i.remaining > 0 ? `<span class="rem">متبقي ${fmt(i.remaining)}</span>` : ""}</span>
+      </button>`).join("");
+  }
+  $("invSearch").addEventListener("input", renderList);
+  $("invBox").addEventListener("click", e => {
+    const b = e.target.closest(".inv-row");
+    if(!b) return;
+    const inv = state.invoices.find(i => i.no === Number(b.dataset.no));
+    if(inv) openInvoice(inv, false);
+  });
+
+  /* ---------- البداية ---------- */
+  renderCatList();
+  renderCart();
+  renderResults();
+})();
+</script>
+</body>
+</html>
