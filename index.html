@@ -7,7 +7,7 @@
 <title>نظام المبيعات</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#16302B; --ink-soft:#4C625D; --paper:#EDF1EF; --card:#FFFFFF;
@@ -107,9 +107,15 @@
   /* عرض الفاتورة */
   .modal{position:fixed;inset:0;background:rgba(22,48,43,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
   .sheet{background:#fff;width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 18px 22px}
-  .inv-shop{text-align:center;font-size:1.15rem;font-weight:700}
-  .inv-title{text-align:center;font-weight:600;color:var(--ink-soft);margin-bottom:10px}
-  .inv-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:.88rem;margin-bottom:6px}
+  .inv-head{display:grid;grid-template-columns:1fr 1.7fr 1fr;gap:6px;align-items:center;margin-bottom:12px}
+  .inv-head .mid{text-align:center}
+  .inv-phone{font-size:.88rem;font-weight:500;color:var(--ink-soft);margin-bottom:2px;font-variant-numeric:tabular-nums}
+  .inv-shop{font-family:"Cairo",var(--font);font-size:1.2rem;font-weight:800;line-height:1.4}
+  .inv-title{font-family:"Cairo",var(--font);font-size:.98rem;font-weight:700;margin-top:4px}
+  .inv-head .side{font-size:.8rem;line-height:1.7;font-variant-numeric:tabular-nums}
+  .inv-head .side.r{text-align:right}
+  .inv-head .side.l{text-align:left}
+  .inv-head .side b{font-size:.95rem}
   .inv-cust{font-size:.92rem;margin-bottom:8px}
   .inv table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.92rem}
   .inv th{background:var(--paper);font-weight:600;text-align:right;padding:7px 8px;border:1px solid var(--line)}
@@ -248,6 +254,7 @@
 
   const KEY = "shop-v1";
   const SHOP = "القبائلي للامونيوم ومستلزماته";
+  const SHOP_PHONE = "0925776093";
   const DEF_CATS = ["ألمنيوم","زجاج","إكسسوارات"];
   const LOC = "ar-LY-u-nu-latn";
 
@@ -576,11 +583,18 @@
         <td class="n">${fmt(l.value)}</td>
       </tr>`).join("");
     return `<div class="inv">
-      <div class="inv-shop">${esc(SHOP)}</div>
-      <div class="inv-title">فاتورة مبيعات${credit ? " أجل" : ""}</div>
-      <div class="inv-meta">
-        <span>رقم الفاتورة: <b>${inv.no}</b></span>
-        <span>${fmtDate(inv.ts)} ${fmtTime(inv.ts)}</span>
+      <div class="inv-head">
+        <div></div>
+        <div class="mid">
+          <div class="inv-phone">هاتف: <bdi dir="ltr">${SHOP_PHONE}</bdi></div>
+          <div class="inv-shop">${esc(SHOP)}</div>
+          <div class="inv-title">فاتورة مبيعات${credit ? " أجل" : ""}</div>
+        </div>
+        <div class="side l">
+          <div>${fmtDate(inv.ts)}</div>
+          <div>${fmtTime(inv.ts)}</div>
+          <div>رقم: <b>${inv.no}</b></div>
+        </div>
       </div>
       ${inv.customer ? `<div class="inv-cust">العميل: <b>${esc(inv.customer)}</b></div>` : ""}
       <table>
