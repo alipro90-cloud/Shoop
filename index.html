@@ -1,685 +1,423 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#16302B">
-<title>نظام المبيعات</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@700;800&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d4e5f">
+<title>القبائلي للامونيوم ومستلزماته</title>
 <style>
-  :root{
-    --ink:#16302B; --ink-soft:#4C625D; --paper:#EDF1EF; --card:#FFFFFF;
-    --line:#D5DDDA; --accent:#1B7F5C; --danger:#B3392F;
-    --radius-lg:18px; --radius-sm:10px;
-    --font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,"Noto Sans Arabic",system-ui,sans-serif;
-  }
-  *{box-sizing:border-box;margin:0}
-  [hidden]{display:none !important}
-  html{-webkit-text-size-adjust:100%}
-  body{font-family:var(--font);background:var(--paper);color:var(--ink);line-height:1.6;min-height:100vh;padding-bottom:96px}
-  button,input,select{font:inherit;color:inherit}
-  button{cursor:pointer}
-  :focus-visible{outline:3px solid #F2B84B;outline-offset:2px}
-  .wrap{max-width:640px;margin:0 auto;padding:0 16px}
-
-  .top{background:var(--ink);color:#fff;padding:20px 0 22px}
-  .top h1{font-size:1.25rem;font-weight:700}
-  .top p{color:#A9C2BB;font-size:.88rem}
-
-  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:16px;margin-top:14px}
-  .panel h2{font-size:1.02rem;font-weight:600;margin-bottom:12px}
-  .field{margin-bottom:12px}
-  .field > label,.field > .lbl{display:block;font-size:.88rem;font-weight:500;margin-bottom:5px}
-  .input{width:100%;border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 12px;background:#fff}
-  .input:focus{border-color:var(--accent)}
-  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .btn{border:0;border-radius:var(--radius-sm);padding:13px 18px;background:var(--accent);color:#fff;font-weight:600;width:100%}
-  .btn:hover{background:#166a4d}
-  .btn:disabled{background:#9BB5AC;cursor:not-allowed}
-  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);width:auto}
-  .btn.ghost:hover{background:var(--paper)}
-  .btn.danger{background:transparent;color:var(--danger);border:1px solid var(--line);width:auto}
-  .row-actions{display:flex;gap:10px;flex-wrap:wrap}
-  .mini{border:0;background:transparent;color:var(--ink-soft);padding:6px 8px;border-radius:8px;font-size:.82rem}
-  .mini:hover{background:var(--paper);color:var(--ink)}
-  .mini.del:hover{color:var(--danger)}
-  .empty-note{color:var(--ink-soft);font-size:.9rem;padding:10px 2px}
-  .error{color:var(--danger);font-size:.85rem;min-height:1.2em;margin-bottom:8px}
-
-  /* نوع الدفع */
-  .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .seg label{position:relative}
-  .seg input{position:absolute;opacity:0;inset:0;cursor:pointer}
-  .seg span{display:block;text-align:center;padding:10px;border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;font-weight:500}
-  .seg input:checked + span{background:var(--ink);color:#fff;border-color:var(--ink)}
-  .seg input:focus-visible + span{outline:3px solid #F2B84B;outline-offset:2px}
-
-  /* نتائج الأصناف */
-  .results{display:grid;gap:6px;margin-top:10px}
-  .pick{display:flex;align-items:center;gap:10px;text-align:right;width:100%;border:1px solid var(--line);background:#fff;border-radius:var(--radius-sm);padding:10px 12px}
-  .pick:hover{background:var(--paper)}
-  .pick .p-name{flex:1;min-width:0;font-weight:500}
-  .pick .p-cat{font-size:.78rem;color:var(--ink-soft)}
-  .pick .p-price{font-weight:700;direction:ltr}
-
-  /* سطور الفاتورة */
-  .line{border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;background:#fff}
-  .l-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-  .l-name{font-weight:600}
-  .l-bot{display:flex;align-items:center;gap:12px;margin-top:6px;flex-wrap:wrap}
-  .stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden}
-  .stepper button{width:38px;height:38px;border:0;background:var(--paper);font-size:1.2rem}
-  .stepper button:hover{background:#dfe7e4}
-  .stepper input{width:64px;height:38px;border:0;text-align:center;font-weight:600;background:#fff}
-  .l-price{color:var(--ink-soft);direction:ltr}
-  .l-val{margin-inline-start:auto;font-weight:700;direction:ltr}
-
-  .totals{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
-  .t-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0}
-  .t-row.big strong{font-size:1.5rem;direction:ltr}
-  .t-row input{width:140px;text-align:left;direction:ltr}
-  .t-row.rem strong{color:var(--danger);direction:ltr}
-  .hint{font-size:.82rem;color:var(--ink-soft)}
-
-  /* الأصناف */
-  .group{margin-top:16px}
-  .group h3{font-size:.95rem;font-weight:600;padding:0 4px 6px}
-  .list{list-style:none;padding:0;background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
-  .it{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line)}
-  .it:last-child{border-bottom:0}
-  .it .name{flex:1;min-width:0;font-weight:500}
-  .it .price{font-weight:700;direction:ltr}
-
-  /* سجل الفواتير */
-  .inv-row{display:flex;align-items:center;gap:12px;width:100%;text-align:right;border:1px solid var(--line);background:#fff;border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px}
-  .inv-row:hover{background:var(--paper)}
-  .inv-row .no{font-weight:700;min-width:44px}
-  .inv-row .mid{flex:1;min-width:0}
-  .inv-row .cust{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .inv-row .when{font-size:.78rem;color:var(--ink-soft)}
-  .inv-row .amt{text-align:left;direction:ltr;font-weight:700}
-  .inv-row .rem{display:block;font-size:.78rem;color:var(--danger);font-weight:600}
-  .badge{font-size:.72rem;border-radius:99px;padding:1px 8px;border:1px solid var(--line);color:var(--ink-soft);margin-inline-start:6px}
-  .badge.credit{border-color:#E7B5AF;color:var(--danger)}
-
-  /* عرض الفاتورة */
-  .modal{position:fixed;inset:0;background:rgba(22,48,43,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
-  .sheet{background:#fff;width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 18px 22px}
-  .inv-head{display:grid;grid-template-columns:1fr 1.7fr 1fr;gap:6px;align-items:center;margin-bottom:12px}
-  .inv-head .mid{text-align:center}
-  .inv-phone{font-size:.88rem;font-weight:500;color:var(--ink-soft);margin-bottom:2px;font-variant-numeric:tabular-nums}
-  .inv-shop{font-family:"Cairo",var(--font);font-size:1.2rem;font-weight:800;line-height:1.4}
-  .inv-title{font-family:"Cairo",var(--font);font-size:.98rem;font-weight:700;margin-top:4px}
-  .inv-head .side{font-size:.8rem;line-height:1.7;font-variant-numeric:tabular-nums}
-  .inv-head .side.r{text-align:right}
-  .inv-head .side.l{text-align:left}
-  .inv-head .side b{font-size:.95rem}
-  .inv-cust{font-size:.92rem;margin-bottom:8px}
-  .inv table{width:100%;border-collapse:collapse;margin:8px 0;font-size:.92rem}
-  .inv th{background:var(--paper);font-weight:600;text-align:right;padding:7px 8px;border:1px solid var(--line)}
-  .inv td{padding:7px 8px;border:1px solid var(--line)}
-  .inv td.n{direction:ltr;text-align:left;white-space:nowrap}
-  .inv-sum{margin-top:8px}
-  .inv-sum div{display:flex;justify-content:space-between;padding:3px 0}
-  .inv-sum b{direction:ltr}
-  .inv-sum .tot{font-size:1.15rem;font-weight:700;border-top:2px solid var(--ink);margin-top:4px;padding-top:6px}
-  .inv-sum .remn{color:var(--danger);font-weight:700}
-  .sheet-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
-
-  /* شريط التبويبات */
-  .tabs{position:fixed;inset-inline:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);z-index:10}
-  .tabs button{border:0;background:transparent;padding:14px 6px;font-weight:600;color:var(--ink-soft);border-top:3px solid transparent}
-  .tabs button[aria-selected="true"]{color:var(--accent);border-top-color:var(--accent)}
-
-  .toast{position:fixed;inset-inline:16px;bottom:78px;max-width:420px;margin-inline:auto;background:var(--ink);color:#fff;border-radius:14px;padding:11px 16px;z-index:30;opacity:0;pointer-events:none;transition:opacity .2s ease}
-  .toast.show{opacity:1}
-
-  @media (max-width:420px){ .two{grid-template-columns:1fr} }
-  @media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+:root{
+  --bg:#e9eae6; --paper:#f8f8f5; --ink:#1f2a30; --mute:#66727a;
+  --main:#1d4e5f; --main-ink:#fff; --due:#b5442e; --ok:#2f7a4f; --line:#cfd2cc;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic","Geeza Pro",Arial,sans-serif;font-size:16px}
+body{padding-bottom:84px}
+header{background:var(--main);color:var(--main-ink);text-align:center;padding:14px 16px calc(12px);
+  position:sticky;top:0;z-index:5}
+header h1{margin:0;font-size:19px;font-weight:700}
+header small{opacity:.8;font-size:13px}
+main{padding:14px;max-width:640px;margin:0 auto}
+section{display:none}
+section.on{display:block}
+label{display:block;font-size:13px;color:var(--mute);margin-bottom:4px}
+input,select{width:100%;font:inherit;color:var(--ink);background:var(--paper);
+  border:1.5px solid var(--line);border-radius:8px;padding:11px 10px;min-height:46px}
+input:focus{outline:3px solid #7fb0c0;border-color:var(--main)}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px;min-height:46px;padding:0 16px}
+button:focus-visible{outline:3px solid #7fb0c0}
+.btn{background:var(--main);color:var(--main-ink);font-weight:700}
+.btn.alt{background:transparent;color:var(--main);border:1.5px solid var(--main)}
+.btn.bad{background:transparent;color:var(--due);border:1.5px solid var(--due)}
+.btn.full{width:100%}
+.head2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.line{background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:8px;margin-top:8px;align-items:end}
+.val{font-size:13px;color:var(--mute)}
+.val b{display:block;font-size:18px;color:var(--ink);padding:9px 2px;font-variant-numeric:tabular-nums}
+.x{background:none;color:var(--due);min-height:36px;padding:0;margin-top:6px;font-size:14px}
+.totals{background:var(--paper);border:1.5px solid var(--ink);border-radius:10px;padding:12px;margin:14px 0}
+.totals .r{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:16px}
+.totals .r.big{font-size:20px;font-weight:700}
+.totals .r input{width:45%;text-align:left}
+.due{color:var(--due);font-weight:700}
+.paidok{color:var(--ok);font-weight:700}
+.card{background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;
+  display:flex;justify-content:space-between;gap:10px;align-items:center;cursor:pointer;width:100%;text-align:right;color:inherit}
+.card .t{font-weight:700}
+.card .s{font-size:13px;color:var(--mute);margin-top:2px}
+.sum{display:flex;justify-content:space-between;background:var(--main);color:#fff;border-radius:10px;padding:12px;margin-bottom:12px}
+.empty{text-align:center;color:var(--mute);padding:36px 12px}
+nav{position:fixed;bottom:0;inset-inline:0;background:var(--paper);border-top:1.5px solid var(--line);
+  display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav button{background:none;color:var(--mute);border-radius:0;min-height:58px;font-size:13.5px;padding:0 2px}
+nav button.on{color:var(--main);font-weight:700;box-shadow:inset 0 3px 0 var(--main)}
+.modal{position:fixed;inset:0;background:rgba(20,28,32,.55);z-index:20;display:none;overflow:auto;padding:14px}
+.modal.on{display:block}
+.sheet{background:var(--paper);max-width:560px;margin:0 auto;border-radius:12px;padding:16px}
+.sheet .shop{text-align:center;font-size:21px;font-weight:700;color:var(--main);padding-bottom:8px;margin-bottom:8px;border-bottom:2px solid var(--main)}
+.sheet .meta{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:start;margin:6px 0 10px;font-size:13.5px;line-height:1.7}
+.sheet .m-r{text-align:right}
+.sheet .m-c{text-align:center;font-weight:700;font-size:16.5px;white-space:nowrap}
+.sheet .m-l{text-align:left}
+.sheet .foot{margin-top:12px;padding-top:10px;border-top:2px solid var(--main);text-align:center;font-size:14px;line-height:1.9}
+.sheet .foot .addr{font-weight:700;color:var(--main)}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:15px}
+th,td{padding:7px 4px;border-bottom:1px solid var(--line);text-align:right}
+th{font-size:12.5px;color:var(--mute);font-weight:600}
+td.n,th.n{text-align:left;font-variant-numeric:tabular-nums}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.item-row{display:grid;grid-template-columns:1.6fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.grp{font-weight:700;color:var(--main);margin:16px 2px 8px;padding-bottom:4px;border-bottom:1.5px solid var(--line)}
+.note{font-size:13.5px;color:var(--mute);line-height:1.7;margin:8px 0 14px}
+#toast{position:fixed;bottom:76px;inset-inline:0;margin:auto;width:max-content;max-width:90%;
+  background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;z-index:30;display:none}
+@media print{
+  body{background:#fff;padding:0}
+  header,main,nav,#toast,.acts,.noprint{display:none!important}
+  .modal{position:static;background:none;display:block!important;padding:0}
+  @page{margin:10mm}
+  .sheet{max-width:none;border-radius:0;padding:0 6mm;background:#fff}
+  table{table-layout:auto}
+  th.n,td.n{padding-left:8px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 
-<header class="top">
-  <div class="wrap">
-    <h1 id="shopName"></h1>
-    <p>نظام المبيعات</p>
-  </div>
+<header>
+  <h1>القبائلي للامونيوم ومستلزماته</h1>
+  <small id="hsub"></small>
 </header>
 
-<main class="wrap">
-
-  <!-- ===== فاتورة جديدة ===== -->
-  <section class="view" id="view-new">
-    <div class="panel">
-      <h2>فاتورة جديدة</h2>
-      <div class="field">
-        <label for="customer">اسم العميل (اختياري)</label>
-        <input class="input" id="customer" type="text" maxlength="60" autocomplete="off" placeholder="مثال: أحمد محمد">
-      </div>
-      <div class="field">
-        <span class="lbl" id="payLbl">نوع الفاتورة</span>
-        <div class="seg" role="radiogroup" aria-labelledby="payLbl">
-          <label><input type="radio" name="pay" value="cash" checked><span>نقدي</span></label>
-          <label><input type="radio" name="pay" value="credit"><span>أجل</span></label>
-        </div>
-      </div>
+<main>
+  <!-- فاتورة جديدة -->
+  <section id="s-new" class="on">
+    <div class="head2">
+      <div><label>رقم الفاتورة</label><input id="inv-no" readonly></div>
+      <div><label>التاريخ</label><input id="inv-date" type="date"></div>
     </div>
-
-    <div class="panel">
-      <h2>إضافة صنف</h2>
-      <input class="input" id="search" type="search" placeholder="ابحث باسم الصنف أو الفئة…" autocomplete="off" aria-label="بحث عن صنف">
-      <div class="results" id="results"></div>
+    <div style="margin-bottom:12px">
+      <label>اسم العميل</label>
+      <input id="inv-cust" placeholder="اختياري" list="custlist" autocomplete="off">
     </div>
+    <div id="lines"></div>
+    <button class="btn alt full" onclick="addLine()">+ إضافة صنف</button>
 
-    <div class="panel">
-      <h2>أصناف الفاتورة <span id="cartCount" class="hint"></span></h2>
-      <div id="cart"></div>
-      <div class="totals">
-        <div class="t-row big"><span>الإجمالي (د.ل)</span><strong id="total">0</strong></div>
-        <div class="t-row" id="paidRow" hidden>
-          <label for="paid">المدفوع الآن</label>
-          <input class="input" id="paid" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
-        </div>
-        <div class="hint" id="paidHint"></div>
-        <div class="t-row rem" id="remRow" hidden><span>المتبقي</span><strong id="remaining">0</strong></div>
-      </div>
-      <div class="error" id="saveErr" role="alert"></div>
-      <button class="btn" id="saveBtn" type="button" disabled>حفظ الفاتورة</button>
+    <div class="totals">
+      <div class="r big"><span>إجمالي الفاتورة</span><span id="t-total">0</span></div>
+      <div class="r"><span>المدفوع</span><input id="inv-paid" inputmode="decimal" placeholder="0" oninput="totals()"></div>
+      <div class="r"><span>الرصيد المتبقي</span><span id="t-rem">0</span></div>
     </div>
+    <button class="btn full" onclick="saveInvoice()">حفظ الفاتورة</button>
   </section>
 
-  <!-- ===== الأصناف ===== -->
-  <section class="view" id="view-items" hidden>
-    <div class="panel">
-      <h2 id="itemFormTitle">إضافة صنف</h2>
-      <form id="itemForm" novalidate>
-        <div class="field">
-          <label for="itemName">اسم الصنف</label>
-          <input class="input" id="itemName" type="text" maxlength="80" autocomplete="off">
-        </div>
-        <div class="two">
-          <div class="field">
-            <label for="itemPrice">السعر (د.ل)</label>
-            <input class="input" id="itemPrice" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
-          </div>
-          <div class="field">
-            <label for="itemCat">الفئة</label>
-            <input class="input" id="itemCat" type="text" list="catList" maxlength="40" autocomplete="off" placeholder="اختر أو اكتب فئة">
-            <datalist id="catList"></datalist>
-          </div>
-        </div>
-        <div class="error" id="itemErr" role="alert"></div>
-        <div class="row-actions">
-          <button class="btn" id="itemSubmit" type="submit" style="flex:1">إضافة الصنف</button>
-          <button class="btn ghost" id="itemCancel" type="button" hidden>إلغاء</button>
-        </div>
-      </form>
-    </div>
-
-    <div class="panel">
-      <h2>قائمة الأصناف <span id="itemCount" class="hint"></span></h2>
-      <input class="input" id="itemSearch" type="search" placeholder="بحث في الأصناف…" autocomplete="off" aria-label="بحث في الأصناف">
-      <div id="itemsBox"></div>
-    </div>
+  <!-- الفواتير -->
+  <section id="s-list">
+    <div class="sum"><span>إجمالي المتبقي على العملاء</span><b id="sum-due">0</b></div>
+    <input id="q" placeholder="بحث بالرقم أو اسم العميل" oninput="renderList()" style="margin-bottom:12px">
+    <div id="list"></div>
   </section>
 
-  <!-- ===== سجل الفواتير ===== -->
-  <section class="view" id="view-list" hidden>
-    <div class="panel">
-      <h2>الفواتير المحفوظة <span id="invCount" class="hint"></span></h2>
-      <input class="input" id="invSearch" type="search" placeholder="بحث برقم الفاتورة أو اسم العميل…" autocomplete="off" aria-label="بحث في الفواتير">
-      <div id="invBox" style="margin-top:12px"></div>
+  <!-- الأصناف -->
+  <section id="s-items">
+    <p class="note">أضف أصنافك وأسعارها وتصنيفها هنا لتظهر تلقائياً عند كتابة الفاتورة. الصنف الجديد يُضاف هنا أيضاً عند حفظ أي فاتورة.</p>
+    <div class="line">
+      <label>اسم الصنف</label>
+      <input id="ni-name" placeholder="اسم الصنف" autocomplete="off">
+      <div class="row2">
+        <div><label>السعر</label><input id="ni-price" inputmode="decimal" placeholder="0"></div>
+        <div><label>التصنيف</label><input id="ni-cat" list="catg" placeholder="مثل: ألمنيوم" autocomplete="off"></div>
+      </div>
+      <button class="btn full" style="margin-top:10px" onclick="addItem()">إضافة الصنف</button>
     </div>
+    <div class="row2" style="margin:14px 0 4px">
+      <input id="iq" placeholder="بحث في الأصناف" oninput="renderItems()">
+      <select id="ifilter" onchange="renderItems()"></select>
+    </div>
+    <div id="items"></div>
   </section>
 
+  <!-- نسخة احتياطية -->
+  <section id="s-backup">
+    <p class="note">البيانات محفوظة على هذا الجوال فقط. خذ نسخة احتياطية بانتظام، خصوصاً قبل تغيير الجوال أو مسح بيانات المتصفح.</p>
+    <button class="btn full" onclick="exportData()" style="margin-bottom:10px">حفظ نسخة احتياطية</button>
+    <label class="btn alt full" style="display:flex;align-items:center;justify-content:center;color:var(--main);font-size:16px;margin:0;border-radius:8px;min-height:46px;cursor:pointer">
+      استرجاع نسخة احتياطية
+      <input type="file" accept=".json,application/json" onchange="importData(event)" style="display:none">
+    </label>
+  </section>
 </main>
 
-<nav class="tabs" aria-label="التنقل">
-  <button type="button" data-tab="new" aria-selected="true">فاتورة جديدة</button>
-  <button type="button" data-tab="items" aria-selected="false">الأصناف</button>
-  <button type="button" data-tab="list" aria-selected="false">الفواتير</button>
-</nav>
+<datalist id="cat"></datalist>
+<datalist id="custlist"></datalist>
+<datalist id="catg"></datalist>
 
-<div class="modal" id="modal" hidden>
-  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="الفاتورة"></div>
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="sheet" id="sheet"></div>
 </div>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<nav>
+  <button class="on" data-t="new" onclick="tab('new')">فاتورة جديدة</button>
+  <button data-t="list" onclick="tab('list')">الفواتير</button>
+  <button data-t="items" onclick="tab('items')">الأصناف</button>
+  <button data-t="backup" onclick="tab('backup')">نسخة احتياطية</button>
+</nav>
+<div id="toast" role="status"></div>
 
 <script>
-(function(){
-  "use strict";
+const KEY = 'shop-invoices-v1';
+let db = { invoices: [], items: [], next: 1 };
+let draft = [];
+const mem = {};
 
-  const KEY = "shop-v1";
-  const SHOP = "القبائلي للامونيوم ومستلزماته";
-  const SHOP_PHONE = "0925776093";
-  const DEF_CATS = ["ألمنيوم","زجاج","إكسسوارات"];
-  const LOC = "ar-LY-u-nu-latn";
+/* ---------- تخزين ---------- */
+async function load() {
+  let raw = null;
+  try { if (window.storage) { const r = await window.storage.get(KEY); if (r && r.value) raw = r.value; } } catch (e) {}
+  if (!raw) { try { raw = localStorage.getItem(KEY); } catch (e) {} }
+  if (!raw && mem[KEY]) raw = mem[KEY];
+  if (raw) { try { db = Object.assign(db, JSON.parse(raw)); } catch (e) {} }
+}
+async function save() {
+  const raw = JSON.stringify(db);
+  mem[KEY] = raw;
+  let ok = false;
+  try { if (window.storage) { await window.storage.set(KEY, raw); ok = true; } } catch (e) {}
+  try { localStorage.setItem(KEY, raw); ok = true; } catch (e) {}
+  return ok;
+}
 
-  /* ---------- التخزين ---------- */
-  let memBackup = null;
-  function load(){
-    try{
-      const raw = localStorage.getItem(KEY);
-      if(raw){
-        const d = JSON.parse(raw);
-        if(d && Array.isArray(d.items) && Array.isArray(d.invoices)){
-          d.nextNo = d.nextNo || (d.invoices.reduce((m,i)=>Math.max(m,i.no),0) + 1);
-          return d;
-        }
-      }
-    }catch(e){ if(memBackup) return memBackup; }
-    return {items:[], invoices:[], nextNo:1};
-  }
-  function save(){
-    try{ localStorage.setItem(KEY, JSON.stringify(state)); }
-    catch(e){ memBackup = JSON.parse(JSON.stringify(state)); }
-  }
+/* ---------- أدوات ---------- */
+const AR = '٠١٢٣٤٥٦٧٨٩';
+function num(v) {
+  const s = String(v == null ? '' : v).replace(/[٠-٩]/g, d => AR.indexOf(d)).replace(/[٫،,]/g, '.');
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+const fmt = n => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const today = () => new Date().toLocaleDateString('en-CA');
+const $ = id => document.getElementById(id);
+function toast(m) { const t = $('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(toast.h); toast.h = setTimeout(() => t.style.display = 'none', 2200); }
+const invTotal = i => i.lines.reduce((s, l) => s + num(l.qty) * num(l.price), 0);
+const invRem = i => invTotal(i) - num(i.paid);
 
-  /* ---------- أدوات ---------- */
-  const $ = id => document.getElementById(id);
-  const nf = new Intl.NumberFormat("en-US",{maximumFractionDigits:3});
-  const fmt = n => nf.format(n);
-  const r3 = n => Math.round(n*1000)/1000;
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  // توحيد الحروف لتسهيل البحث (أ إ آ ← ا ، ة ← ه ، ى ← ي)
-  const norm = s => String(s||"").toLowerCase()
-    .replace(/[\u064B-\u0652\u0640]/g,"")
-    .replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي");
-  const fmtDate = ts => new Date(ts).toLocaleDateString(LOC,{year:"numeric",month:"2-digit",day:"2-digit"});
-  const fmtTime = ts => new Date(ts).toLocaleTimeString(LOC,{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true});
+/* ---------- تبويبات ---------- */
+function tab(t) {
+  document.querySelectorAll('section').forEach(s => s.classList.toggle('on', s.id === 's-' + t));
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  if (t === 'list') renderList();
+  if (t === 'items') renderItems();
+  window.scrollTo(0, 0);
+}
 
-  let toastTimer = null;
-  function toast(msg){
-    const t = $("toast");
-    t.textContent = msg;
-    t.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove("show"), 1400);
-  }
-
-  /* ---------- الحالة ---------- */
-  const state = load();
-  let cart = [];
-  let payType = "cash";
-  let editingItem = null;
-
-  $("shopName").textContent = SHOP;
-
-  /* ---------- التبويبات ---------- */
-  function showTab(t){
-    document.querySelectorAll(".view").forEach(v => v.hidden = (v.id !== "view-" + t));
-    document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
-    if(t === "items") renderItems();
-    if(t === "list") renderList();
-    if(t === "new") renderResults();
-    window.scrollTo(0,0);
-  }
-  document.querySelector(".tabs").addEventListener("click", e => {
-    const b = e.target.closest("button[data-tab]");
-    if(b) showTab(b.dataset.tab);
-  });
-
-  /* =====================================================
-     المرحلة 1: الأصناف
-     ===================================================== */
-  function allCats(){
-    const s = new Set(DEF_CATS);
-    state.items.forEach(i => i.cat && s.add(i.cat));
-    return Array.from(s);
-  }
-  function renderCatList(){
-    $("catList").innerHTML = allCats().map(c => `<option value="${esc(c)}"></option>`).join("");
-  }
-
-  function renderItems(){
-    renderCatList();
-    $("itemCount").textContent = state.items.length ? "(" + state.items.length + ")" : "";
-    const q = norm($("itemSearch").value.trim());
-    const list = state.items.filter(i => !q || norm(i.name).includes(q) || norm(i.cat).includes(q));
-    const box = $("itemsBox");
-    if(!state.items.length){
-      box.innerHTML = `<div class="empty-note">لا توجد أصناف بعد. أضف أول صنف من النموذج أعلاه.</div>`;
-      return;
-    }
-    if(!list.length){
-      box.innerHTML = `<div class="empty-note">لا توجد نتائج مطابقة.</div>`;
-      return;
-    }
-    const groups = {};
-    list.forEach(i => (groups[i.cat || "بدون فئة"] = groups[i.cat || "بدون فئة"] || []).push(i));
-    box.innerHTML = Object.keys(groups).sort((a,b)=>a.localeCompare(b,"ar")).map(g => `
-      <div class="group">
-        <h3>${esc(g)}</h3>
-        <ul class="list">${groups[g].sort((a,b)=>a.name.localeCompare(b.name,"ar")).map(i => `
-          <li class="it">
-            <span class="name">${esc(i.name)}</span>
-            <span class="price">${fmt(i.price)}</span>
-            <button class="mini" type="button" data-act="edit" data-id="${i.id}" aria-label="تعديل الصنف">تعديل</button>
-            <button class="mini del" type="button" data-act="del" data-id="${i.id}" aria-label="حذف الصنف">حذف</button>
-          </li>`).join("")}
-        </ul>
-      </div>`).join("");
-  }
-
-  function resetItemForm(){
-    editingItem = null;
-    $("itemName").value = "";
-    $("itemPrice").value = "";
-    $("itemCat").value = "";
-    $("itemErr").textContent = "";
-    $("itemFormTitle").textContent = "إضافة صنف";
-    $("itemSubmit").textContent = "إضافة الصنف";
-    $("itemCancel").hidden = true;
-  }
-
-  $("itemForm").addEventListener("submit", e => {
-    e.preventDefault();
-    const name = $("itemName").value.trim();
-    const price = parseFloat($("itemPrice").value);
-    const cat = $("itemCat").value.trim();
-    if(!name){ $("itemErr").textContent = "اكتب اسم الصنف."; $("itemName").focus(); return; }
-    if(!(price >= 0) || isNaN(price)){ $("itemErr").textContent = "أدخل سعراً صحيحاً."; $("itemPrice").focus(); return; }
-    const dup = state.items.some(i => i.id !== editingItem && norm(i.name) === norm(name) && norm(i.cat) === norm(cat));
-    if(dup){ $("itemErr").textContent = "هذا الصنف موجود بالفعل في نفس الفئة."; return; }
-
-    if(editingItem !== null){
-      const it = state.items.find(i => i.id === editingItem);
-      if(it){ it.name = name; it.price = price; it.cat = cat; }
-      toast("تم حفظ التعديل");
-    }else{
-      state.items.push({id: Date.now(), name, price, cat});
-      toast("تمت إضافة الصنف");
-    }
-    save();
-    resetItemForm();
-    renderItems();
-    $("itemName").focus();
-  });
-  $("itemCancel").addEventListener("click", resetItemForm);
-  $("itemSearch").addEventListener("input", renderItems);
-
-  $("itemsBox").addEventListener("click", e => {
-    const b = e.target.closest("button[data-act]");
-    if(!b) return;
-    const id = Number(b.dataset.id);
-    const it = state.items.find(i => i.id === id);
-    if(!it) return;
-    if(b.dataset.act === "edit"){
-      editingItem = id;
-      $("itemName").value = it.name;
-      $("itemPrice").value = it.price;
-      $("itemCat").value = it.cat || "";
-      $("itemErr").textContent = "";
-      $("itemFormTitle").textContent = "تعديل الصنف";
-      $("itemSubmit").textContent = "حفظ التعديل";
-      $("itemCancel").hidden = false;
-      $("itemFormTitle").scrollIntoView({behavior:"smooth", block:"center"});
-    }else{
-      if(!confirm("حذف الصنف «" + it.name + "»؟ الفواتير السابقة لن تتأثر.")) return;
-      state.items = state.items.filter(i => i.id !== id);
-      cart = cart.filter(l => l.itemId !== id);
-      if(editingItem === id) resetItemForm();
-      save();
-      renderItems();
-      renderCart();
-    }
-  });
-
-  /* =====================================================
-     المرحلة 2: فاتورة المبيعات
-     ===================================================== */
-  function renderResults(){
-    const box = $("results");
-    if(!state.items.length){
-      box.innerHTML = `<div class="empty-note">لا توجد أصناف بعد. أضفها أولاً من تبويب «الأصناف».</div>`;
-      return;
-    }
-    const q = norm($("search").value.trim());
-    const list = state.items
-      .filter(i => !q || norm(i.name).includes(q) || norm(i.cat).includes(q))
-      .sort((a,b)=>a.name.localeCompare(b.name,"ar"))
-      .slice(0, 12);
-    box.innerHTML = list.length
-      ? list.map(i => `<button type="button" class="pick" data-id="${i.id}">
-          <span class="p-name">${esc(i.name)}</span>
-          <span class="p-cat">${esc(i.cat || "")}</span>
-          <span class="p-price">${fmt(i.price)}</span>
-        </button>`).join("")
-      : `<div class="empty-note">لا توجد نتائج مطابقة.</div>`;
-  }
-  $("search").addEventListener("input", renderResults);
-
-  $("results").addEventListener("click", e => {
-    const b = e.target.closest(".pick");
-    if(!b) return;
-    const it = state.items.find(i => i.id === Number(b.dataset.id));
-    if(!it) return;
-    const line = cart.find(l => l.itemId === it.id);
-    if(line) line.qty = r3(line.qty + 1);
-    else cart.push({itemId: it.id, name: it.name, price: it.price, qty: 1});
-    renderCart();
-    toast("أُضيف: " + it.name);
-  });
-
-  function calc(){
-    const total = r3(cart.reduce((s,l) => s + l.qty * l.price, 0));
-    const credit = payType === "credit";
-    const rawPaid = Math.max(0, parseFloat($("paid").value) || 0);
-    const paid = credit ? Math.min(total, rawPaid) : total;
-    return {total, credit, rawPaid, paid, rem: r3(total - paid)};
-  }
-
-  function updateTotals(){
-    const c = calc();
-    $("total").textContent = fmt(c.total);
-    $("paidRow").hidden = !c.credit;
-    $("remRow").hidden = !(c.credit && c.total > 0);
-    $("remaining").textContent = fmt(c.rem);
-    $("paidHint").textContent = (c.credit && c.rawPaid > c.total && c.total > 0)
-      ? "المدفوع أكبر من الإجمالي، سيُعتمد مبلغ الإجمالي فقط." : "";
-    $("saveBtn").disabled = !cart.length;
-    $("saveErr").textContent = "";
-  }
-
-  function renderCart(){
-    const box = $("cart");
-    $("cartCount").textContent = cart.length ? "(" + cart.length + ")" : "";
-    if(!cart.length){
-      box.innerHTML = `<div class="empty-note">اختر الأصناف من القائمة أعلاه لإضافتها إلى الفاتورة.</div>`;
-    }else{
-      box.innerHTML = cart.map((l,i) => `
-        <div class="line" data-i="${i}">
-          <div class="l-top">
-            <span class="l-name">${esc(l.name)}</span>
-            <button type="button" class="mini del" data-act="rm" aria-label="حذف السطر">حذف</button>
-          </div>
-          <div class="l-bot">
-            <div class="stepper">
-              <button type="button" data-act="inc" aria-label="زيادة الكمية">+</button>
-              <input type="number" inputmode="decimal" min="0" step="any" value="${l.qty}" data-act="qty" aria-label="الكمية">
-              <button type="button" data-act="dec" aria-label="إنقاص الكمية">−</button>
-            </div>
-            <span class="l-price">× ${fmt(l.price)}</span>
-            <strong class="l-val">${fmt(r3(l.qty * l.price))}</strong>
-          </div>
-        </div>`).join("");
-    }
-    updateTotals();
-  }
-
-  $("cart").addEventListener("click", e => {
-    const b = e.target.closest("button[data-act]");
-    if(!b) return;
-    const i = Number(b.closest(".line").dataset.i);
-    const l = cart[i];
-    if(!l) return;
-    if(b.dataset.act === "rm") cart.splice(i,1);
-    else if(b.dataset.act === "inc") l.qty = r3(l.qty + 1);
-    else if(b.dataset.act === "dec") l.qty = l.qty > 1 ? r3(l.qty - 1) : l.qty;
-    renderCart();
-  });
-  $("cart").addEventListener("input", e => {
-    if(e.target.dataset.act !== "qty") return;
-    const line = e.target.closest(".line");
-    const l = cart[Number(line.dataset.i)];
-    if(!l) return;
-    l.qty = parseFloat(e.target.value) || 0;
-    line.querySelector(".l-val").textContent = fmt(r3(l.qty * l.price));
-    updateTotals();
-  });
-
-  document.querySelectorAll('input[name="pay"]').forEach(r => r.addEventListener("change", () => {
-    payType = r.value;
-    if(payType !== "credit") $("paid").value = "";
-    updateTotals();
-  }));
-  $("paid").addEventListener("input", updateTotals);
-
-  function resetInvoice(){
-    cart = [];
-    payType = "cash";
-    document.querySelector('input[name="pay"][value="cash"]').checked = true;
-    $("customer").value = "";
-    $("paid").value = "";
-    $("search").value = "";
-    renderCart();
-    renderResults();
-  }
-
-  $("saveBtn").addEventListener("click", () => {
-    if(!cart.length) return;
-    if(cart.some(l => !(l.qty > 0))){
-      $("saveErr").textContent = "تأكد أن كمية كل صنف أكبر من صفر.";
-      return;
-    }
-    const c = calc();
-    const inv = {
-      no: state.nextNo,
-      ts: Date.now(),
-      customer: $("customer").value.trim(),
-      type: payType,
-      lines: cart.map(l => ({name: l.name, price: l.price, qty: l.qty, value: r3(l.qty * l.price)})),
-      total: c.total,
-      paid: c.paid,
-      remaining: c.rem
-    };
-    state.invoices.push(inv);
-    state.nextNo++;
-    save();
-    resetInvoice();
-    openInvoice(inv, true);
-  });
-
-  /* ---------- عرض الفاتورة ---------- */
-  function invoiceHTML(inv){
-    const credit = inv.type === "credit";
-    const rows = inv.lines.map(l => `<tr>
-        <td>${esc(l.name)}</td>
-        <td class="n">${fmt(l.qty)}</td>
-        <td class="n">${fmt(l.price)}</td>
-        <td class="n">${fmt(l.value)}</td>
-      </tr>`).join("");
-    return `<div class="inv">
-      <div class="inv-head">
-        <div></div>
-        <div class="mid">
-          <div class="inv-phone">هاتف: <bdi dir="ltr">${SHOP_PHONE}</bdi></div>
-          <div class="inv-shop">${esc(SHOP)}</div>
-          <div class="inv-title">فاتورة مبيعات${credit ? " أجل" : ""}</div>
-        </div>
-        <div class="side l">
-          <div>${fmtDate(inv.ts)}</div>
-          <div>${fmtTime(inv.ts)}</div>
-          <div>رقم: <b>${inv.no}</b></div>
-        </div>
+/* ---------- فاتورة جديدة ---------- */
+function resetDraft() {
+  draft = [{ name: '', qty: '1', price: '' }];
+  $('inv-no').value = db.next;
+  $('inv-date').value = today();
+  $('inv-cust').value = '';
+  $('inv-paid').value = '';
+  renderLines(); totals();
+}
+function renderLines() {
+  $('lines').innerHTML = draft.map((l, i) => `
+    <div class="line">
+      <label>الصنف</label>
+      <input list="cat" placeholder="اسم الصنف" value="${esc(l.name)}" oninput="setLine(${i},'name',this)" autocomplete="off">
+      <div class="row3">
+        <div><label>الكمية</label><input inputmode="decimal" value="${esc(l.qty)}" oninput="setLine(${i},'qty',this)"></div>
+        <div><label>السعر</label><input inputmode="decimal" value="${esc(l.price)}" oninput="setLine(${i},'price',this)"></div>
+        <div class="val">القيمة<b id="v${i}">${fmt(num(l.qty) * num(l.price))}</b></div>
       </div>
-      ${inv.customer ? `<div class="inv-cust">العميل: <b>${esc(inv.customer)}</b></div>` : ""}
-      <table>
-        <thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>القيمة</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <div class="inv-sum">
-        <div class="tot"><span>الإجمالي</span><b>${fmt(inv.total)} د.ل</b></div>
-        ${credit ? `<div><span>المدفوع</span><b>${fmt(inv.paid)} د.ل</b></div>` : ""}
-        ${inv.remaining > 0 ? `<div class="remn"><span>المتبقي</span><b>${fmt(inv.remaining)} د.ل</b></div>` : ""}
-      </div>
+      ${draft.length > 1 ? `<button class="x" onclick="delLine(${i})">حذف الصنف</button>` : ''}
+    </div>`).join('');
+}
+function addLine() { draft.push({ name: '', qty: '1', price: '' }); renderLines(); const ins = $('lines').querySelectorAll('.line'); ins[ins.length - 1].querySelector('input').focus(); }
+function delLine(i) { draft.splice(i, 1); renderLines(); totals(); }
+function setLine(i, f, el) {
+  draft[i][f] = el.value;
+  if (f === 'name' && !num(draft[i].price)) {
+    const m = db.items.find(x => x.name === el.value.trim());
+    if (m) { draft[i].price = String(m.price); el.closest('.line').querySelectorAll('input')[2].value = m.price; }
+  }
+  $('v' + i).textContent = fmt(num(draft[i].qty) * num(draft[i].price));
+  totals();
+}
+function totals() {
+  const t = draft.reduce((s, l) => s + num(l.qty) * num(l.price), 0);
+  const rem = t - num($('inv-paid').value);
+  $('t-total').textContent = fmt(t);
+  const r = $('t-rem'); r.textContent = fmt(rem);
+  r.className = rem > 0 ? 'due' : 'paidok';
+}
+async function saveInvoice() {
+  const lines = draft.filter(l => l.name.trim() && num(l.qty) > 0 && num(l.price) >= 0)
+    .map(l => ({ name: l.name.trim(), qty: num(l.qty), price: num(l.price) }));
+  if (!lines.length) { toast('أضف صنفاً واحداً على الأقل بالاسم والكمية'); return; }
+  const inv = { id: Date.now(), no: db.next, date: $('inv-date').value || today(), time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }), customer: $('inv-cust').value.trim(), lines, paid: num($('inv-paid').value) };
+  db.invoices.unshift(inv);
+  db.next += 1;
+  lines.forEach(l => { const m = db.items.find(x => x.name === l.name); if (m) m.price = l.price; else db.items.push({ name: l.name, price: l.price }); });
+  const ok = await save();
+  refreshLists();
+  resetDraft();
+  toast(ok ? 'تم حفظ الفاتورة رقم ' + inv.no : 'تم الحفظ مؤقتاً فقط، خذ نسخة احتياطية');
+  showInvoice(inv.id);
+}
+
+/* ---------- قائمة الفواتير ---------- */
+function renderList() {
+  const q = $('q').value.trim().toLowerCase();
+  const rows = db.invoices.filter(i => !q || String(i.no).includes(q) || (i.customer || '').toLowerCase().includes(q));
+  $('sum-due').textContent = fmt(db.invoices.reduce((s, i) => s + Math.max(invRem(i), 0), 0));
+  $('list').innerHTML = rows.length ? rows.map(i => {
+    const rem = invRem(i);
+    return `<button class="card" onclick="showInvoice(${i.id})">
+      <div><div class="t">فاتورة ${i.no}${i.customer ? ' - ' + esc(i.customer) : ''}</div>
+      <div class="s">${esc(i.date)}، الإجمالي ${fmt(invTotal(i))}</div></div>
+      <div class="${rem > 0 ? 'due' : 'paidok'}">${rem > 0 ? 'متبقي ' + fmt(rem) : 'مدفوعة'}</div></button>`;
+  }).join('') : `<div class="empty">${q ? 'لا توجد فاتورة مطابقة' : 'لا توجد فواتير بعد. أنشئ أول فاتورة من تبويب "فاتورة جديدة".'}</div>`;
+}
+
+/* ---------- عرض الفاتورة ---------- */
+function showInvoice(id) {
+  const i = db.invoices.find(x => x.id === id); if (!i) return;
+  const rem = invRem(i);
+  $('sheet').innerHTML = `
+    <div class="shop">القبائلي للامونيوم ومستلزماته</div>
+    <div class="meta">
+      <div class="m-r">هاتف 0925776093</div>
+      <div class="m-c">فاتورة مبيعات أجل</div>
+      <div class="m-l"><div>${esc(i.date)}${i.time ? ' ' + esc(i.time) : ''}</div><div>رقم الفاتورة: ${i.no}</div></div>
+    </div>
+    ${i.customer ? `<div class="val">العميل: ${esc(i.customer)}</div>` : ''}
+    <table>
+      <tr><th>الصنف</th><th class="n">الكمية</th><th class="n">السعر</th><th class="n">القيمة</th></tr>
+      ${i.lines.map(l => `<tr><td>${esc(l.name)}</td><td class="n">${fmt(l.qty)}</td><td class="n">${fmt(l.price)}</td><td class="n">${fmt(l.qty * l.price)}</td></tr>`).join('')}
+    </table>
+    <div class="totals" style="margin:8px 0">
+      <div class="r big"><span>الإجمالي</span><span>${fmt(invTotal(i))}</span></div>
+      <div class="r"><span>المدفوع</span><span>${fmt(i.paid)}</span></div>
+      <div class="r"><span>الرصيد المتبقي</span><span class="${rem > 0 ? 'due' : 'paidok'}">${fmt(rem)}</span></div>
+    </div>
+    <div class="foot">
+      <div>الرجاء التأكد من الفاتورة في نفس يوم استلامها</div>
+      <div>ملاحظة: البضاعة المباعة لا ترد ولا تستبدل</div>
+      <div class="addr">اجدابيا - جزيرة طبرق</div>
+    </div>
+    <div class="acts">
+      <button class="btn" onclick="shareInvoice(${i.id})">مشاركة</button>
+      <button class="btn alt" onclick="window.print()">طباعة</button>
+      ${rem > 0 ? `<button class="btn alt" onclick="pay(${i.id})">تسجيل دفعة</button>` : ''}
+      <button class="btn bad" onclick="delInvoice(${i.id})">حذف</button>
+      <button class="btn alt" style="grid-column:1/-1" onclick="closeModal()">إغلاق</button>
     </div>`;
-  }
+  $('modal').classList.add('on');
+}
+function closeModal() { $('modal').classList.remove('on'); }
+async function pay(id) {
+  const i = db.invoices.find(x => x.id === id);
+  const v = num(prompt('المبلغ المدفوع الآن'));
+  if (v <= 0) return;
+  i.paid = num(i.paid) + v;
+  await save(); refreshLists(); showInvoice(id); toast('تم تسجيل الدفعة');
+}
+async function delInvoice(id) {
+  if (!confirm('حذف هذه الفاتورة نهائياً؟')) return;
+  db.invoices = db.invoices.filter(x => x.id !== id);
+  await save(); refreshLists(); closeModal(); toast('تم حذف الفاتورة');
+}
+function invoiceText(i) {
+  const rem = invRem(i);
+  return `القبائلي للامونيوم ومستلزماته\nهاتف 0925776093\nفاتورة مبيعات أجل\nرقم الفاتورة: ${i.no}\nالتاريخ: ${i.date}${i.time ? ' ' + i.time : ''}${i.customer ? '\nالعميل: ' + i.customer : ''}\n\n` +
+    i.lines.map(l => `${l.name}: ${fmt(l.qty)} × ${fmt(l.price)} = ${fmt(l.qty * l.price)}`).join('\n') +
+    `\n\nالإجمالي: ${fmt(invTotal(i))}\nالمدفوع: ${fmt(i.paid)}\nالرصيد المتبقي: ${fmt(rem)}\n\nالرجاء التأكد من الفاتورة في نفس يوم استلامها\nملاحظة: البضاعة المباعة لا ترد ولا تستبدل\nاجدابيا - جزيرة طبرق`;
+}
+async function shareInvoice(id) {
+  const i = db.invoices.find(x => x.id === id); const t = invoiceText(i);
+  try { if (navigator.share) { await navigator.share({ text: t }); return; } } catch (e) { if (e.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(t); toast('تم نسخ نص الفاتورة'); } catch (e) { prompt('انسخ نص الفاتورة', t); }
+}
 
-  function openInvoice(inv, justSaved){
-    $("sheet").innerHTML = invoiceHTML(inv) + `
-      <div class="sheet-actions">
-        ${justSaved
-          ? `<button class="btn" type="button" data-act="close" style="flex:1">فاتورة جديدة</button>`
-          : `<button class="btn" type="button" data-act="close" style="flex:1">إغلاق</button>
-             <button class="btn danger" type="button" data-act="delinv" data-no="${inv.no}">حذف الفاتورة</button>`}
-      </div>`;
-    $("modal").hidden = false;
-    document.body.style.overflow = "hidden";
-  }
-  function closeModal(){
-    $("modal").hidden = true;
-    document.body.style.overflow = "";
-  }
-  $("modal").addEventListener("click", e => {
-    if(e.target === $("modal")) { closeModal(); return; }
-    const b = e.target.closest("button[data-act]");
-    if(!b) return;
-    if(b.dataset.act === "close") closeModal();
-    if(b.dataset.act === "delinv"){
-      const no = Number(b.dataset.no);
-      if(!confirm("حذف الفاتورة رقم " + no + " نهائياً؟")) return;
-      state.invoices = state.invoices.filter(i => i.no !== no);
-      save();
-      closeModal();
-      renderList();
-      toast("تم حذف الفاتورة");
-    }
-  });
-  document.addEventListener("keydown", e => { if(e.key === "Escape" && !$("modal").hidden) closeModal(); });
+/* ---------- الأصناف ---------- */
+function renderItems() {
+  const q = ($('iq').value || '').trim().toLowerCase();
+  const f = $('ifilter').value;
+  const rows = db.items.map((it, k) => ({ it, k }))
+    .filter(({ it }) => (!q || it.name.toLowerCase().includes(q)) && (!f || (f === '__none' ? !it.category : it.category === f)))
+    .sort((a, b) => (a.it.category || '').localeCompare(b.it.category || '', 'ar') || a.it.name.localeCompare(b.it.name, 'ar'));
+  let last = null;
+  $('items').innerHTML = rows.length ? rows.map(({ it, k }) => {
+    const c = it.category || 'بدون تصنيف';
+    const h = c !== last ? `<div class="grp">${esc(c)}</div>` : '';
+    last = c;
+    return h + `
+    <div class="line">
+      <input value="${esc(it.name)}" aria-label="اسم الصنف" onchange="editItem(${k},'name',this.value)">
+      <div class="row2">
+        <input inputmode="decimal" value="${esc(it.price)}" aria-label="السعر" onchange="editItem(${k},'price',this.value)">
+        <input list="catg" value="${esc(it.category || '')}" placeholder="التصنيف" aria-label="التصنيف" onchange="editItem(${k},'category',this.value)">
+      </div>
+      <button class="x" onclick="delItem(${k})">حذف الصنف</button>
+    </div>`;
+  }).join('') : `<div class="empty">${db.items.length ? 'لا توجد أصناف مطابقة' : 'لا توجد أصناف بعد. أضف أول صنف من الأعلى.'}</div>`;
+}
+async function addItem() {
+  const n = $('ni-name').value.trim(), p = num($('ni-price').value), c = $('ni-cat').value.trim();
+  if (!n) { toast('اكتب اسم الصنف'); return; }
+  const m = db.items.find(x => x.name === n);
+  if (m) { m.price = p; if (c) m.category = c; } else db.items.push({ name: n, price: p, category: c });
+  $('ni-name').value = ''; $('ni-price').value = '';
+  await save(); refreshLists(); renderItems();
+  toast('تمت إضافة الصنف');
+  $('ni-name').focus();
+}
+async function editItem(k, f, v) { db.items[k][f] = f === 'price' ? num(v) : v.trim(); await save(); refreshLists(); }
+async function delItem(k) { if (!confirm('حذف هذا الصنف من القائمة؟ الفواتير السابقة لا تتأثر.')) return; db.items.splice(k, 1); await save(); refreshLists(); renderItems(); }
+function refreshLists() {
+  $('cat').innerHTML = db.items.map(i => `<option value="${esc(i.name)}" label="${esc(i.category || '')}"></option>`).join('');
+  const cats = [...new Set(db.items.map(i => i.category).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ar'));
+  $('catg').innerHTML = cats.map(c => `<option value="${esc(c)}"></option>`).join('');
+  const sel = $('ifilter'), cur = sel.value;
+  sel.innerHTML = '<option value="">كل التصنيفات</option>' + cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('') +
+    (db.items.some(i => !i.category) ? '<option value="__none">بدون تصنيف</option>' : '');
+  sel.value = cur;
+  if (sel.value !== cur) sel.value = '';
+  const names = [...new Set(db.invoices.map(i => i.customer).filter(Boolean))];
+  $('custlist').innerHTML = names.map(n => `<option value="${esc(n)}"></option>`).join('');
+  $('hsub').textContent = db.invoices.length + ' فاتورة محفوظة';
+}
 
-  /* ---------- سجل الفواتير (نسخة أولية) ---------- */
-  function renderList(){
-    $("invCount").textContent = state.invoices.length ? "(" + state.invoices.length + ")" : "";
-    const q = norm($("invSearch").value.trim());
-    const list = state.invoices
-      .filter(i => !q || String(i.no) === q || norm(i.customer).includes(q))
-      .sort((a,b) => b.no - a.no);
-    const box = $("invBox");
-    if(!state.invoices.length){
-      box.innerHTML = `<div class="empty-note">لا توجد فواتير محفوظة بعد.</div>`;
-      return;
-    }
-    if(!list.length){
-      box.innerHTML = `<div class="empty-note">لا توجد نتائج مطابقة.</div>`;
-      return;
-    }
-    box.innerHTML = list.map(i => `
-      <button type="button" class="inv-row" data-no="${i.no}">
-        <span class="no">${i.no}</span>
-        <span class="mid">
-          <span class="cust">${i.customer ? esc(i.customer) : "بدون اسم"}<span class="badge ${i.type === "credit" ? "credit" : ""}">${i.type === "credit" ? "أجل" : "نقدي"}</span></span>
-          <span class="when">${fmtDate(i.ts)} ${fmtTime(i.ts)}</span>
-        </span>
-        <span class="amt">${fmt(i.total)}${i.remaining > 0 ? `<span class="rem">متبقي ${fmt(i.remaining)}</span>` : ""}</span>
-      </button>`).join("");
-  }
-  $("invSearch").addEventListener("input", renderList);
-  $("invBox").addEventListener("click", e => {
-    const b = e.target.closest(".inv-row");
-    if(!b) return;
-    const inv = state.invoices.find(i => i.no === Number(b.dataset.no));
-    if(inv) openInvoice(inv, false);
-  });
+/* ---------- نسخة احتياطية ---------- */
+function exportData() {
+  const blob = new Blob([JSON.stringify(db)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'فواتير-' + today() + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  toast('تم حفظ النسخة الاحتياطية');
+}
+function importData(ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = async () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!Array.isArray(d.invoices) || !Array.isArray(d.items)) throw 0;
+      if (!confirm('سيتم استبدال البيانات الحالية بالنسخة المسترجعة. متابعة؟')) return;
+      db = { invoices: d.invoices, items: d.items, next: d.next || (d.invoices.reduce((m, i) => Math.max(m, i.no), 0) + 1) };
+      await save(); refreshLists(); resetDraft(); toast('تم استرجاع البيانات');
+    } catch (e) { toast('الملف غير صالح'); }
+  };
+  r.readAsText(f); ev.target.value = '';
+}
 
-  /* ---------- البداية ---------- */
-  renderCatList();
-  renderCart();
-  renderResults();
-})();
+(async function init() { await load(); refreshLists(); resetDraft(); })();
 </script>
 </body>
 </html>
