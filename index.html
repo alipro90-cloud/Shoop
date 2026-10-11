@@ -8,13 +8,13 @@
 <style>
 :root{
   --bg:#e9eae6; --paper:#f8f8f5; --ink:#1f2a30; --mute:#66727a;
-  --main:#1d4e5f; --main-ink:#fff; --due:#b5442e; --ok:#2f7a4f; --line:#cfd2cc;
+  --main:#1d4e5f; --main-ink:#fff; --due:#b5442e; --ok:#2f7a4f; --line:#cfd2cc; --gray:#d9dbd6; --grid:#8d948f;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);
   font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic","Geeza Pro",Arial,sans-serif;font-size:16px}
 body{padding-bottom:84px}
-header{background:var(--main);color:var(--main-ink);text-align:center;padding:14px 16px calc(12px);
+header{background:var(--main);color:var(--main-ink);text-align:center;padding:14px 16px 12px;
   position:sticky;top:0;z-index:5}
 header h1{margin:0;font-size:19px;font-weight:700}
 header small{opacity:.8;font-size:13px}
@@ -33,9 +33,10 @@ button:focus-visible{outline:3px solid #7fb0c0}
 .btn.full{width:100%}
 .head2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .line{background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px}
-.row3{display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:8px;margin-top:8px;align-items:end}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+.vline{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:13px;color:var(--mute)}
+.vline b{font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums}
 .val{font-size:13px;color:var(--mute)}
-.val b{display:block;font-size:18px;color:var(--ink);padding:9px 2px;font-variant-numeric:tabular-nums}
 .x{background:none;color:var(--due);min-height:36px;padding:0;margin-top:6px;font-size:14px}
 .totals{background:var(--paper);border:1.5px solid var(--ink);border-radius:10px;padding:12px;margin:14px 0}
 .totals .r{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:16px}
@@ -55,21 +56,32 @@ nav button{background:none;color:var(--mute);border-radius:0;min-height:58px;fon
 nav button.on{color:var(--main);font-weight:700;box-shadow:inset 0 3px 0 var(--main)}
 .modal{position:fixed;inset:0;background:rgba(20,28,32,.55);z-index:20;display:none;overflow:auto;padding:14px}
 .modal.on{display:block}
-.sheet{background:var(--paper);max-width:560px;margin:0 auto;border-radius:12px;padding:16px}
+
+/* ---------- شكل الفاتورة ---------- */
+.sheet{background:var(--paper);max-width:600px;margin:0 auto;border-radius:12px;padding:16px;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
 .sheet .shop{text-align:center;font-size:21px;font-weight:700;color:var(--main);padding-bottom:8px;margin-bottom:8px;border-bottom:2px solid var(--main)}
 .sheet .meta{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:start;margin:6px 0 10px;font-size:13.5px;line-height:1.7}
 .sheet .m-r{text-align:right}
 .sheet .m-c{text-align:center;font-weight:700;font-size:16.5px;white-space:nowrap}
-.sheet .m-l{text-align:left}
+.sheet .m-l{text-align:left;font-variant-numeric:tabular-nums}
+.tbl{width:100%;border-collapse:collapse;margin:10px 0;font-size:14.5px;border:1.5px solid var(--ink)}
+.tbl th,.tbl td{border:1px solid var(--grid);padding:6px 5px;text-align:right;vertical-align:middle}
+.tbl thead th{background:var(--gray);font-size:12.5px;line-height:1.35;font-weight:700}
+.tbl thead th small{display:block;font-weight:400;color:var(--mute);font-size:10.5px;direction:ltr}
+.tbl td.c,.tbl th.c{text-align:center}
+.tbl td.n,.tbl th.n{text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl tfoot td{background:var(--gray);font-weight:700;font-size:15.5px}
+.sumrow{display:grid;grid-template-columns:repeat(3,1fr);border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;margin:8px 0}
+.sumrow div{padding:8px 6px;text-align:center;font-size:12.5px;color:var(--mute);border-inline-start:1px solid var(--grid)}
+.sumrow div:first-child{border-inline-start:0}
+.sumrow b{display:block;font-size:16px;color:var(--ink);font-variant-numeric:tabular-nums;margin-top:2px}
 .sheet .foot{margin-top:12px;padding-top:10px;border-top:2px solid var(--main);text-align:center;font-size:14px;line-height:1.9}
 .sheet .foot .addr{font-weight:700;color:var(--main)}
-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:15px}
-th,td{padding:7px 4px;border-bottom:1px solid var(--line);text-align:right}
-th{font-size:12.5px;color:var(--mute);font-weight:600}
-td.n,th.n{text-align:left;font-variant-numeric:tabular-nums}
 .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-.item-row{display:grid;grid-template-columns:1.6fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.keyrow{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px}
+.keyrow input{margin:0}
 .grp{font-weight:700;color:var(--main);margin:16px 2px 8px;padding-bottom:4px;border-bottom:1.5px solid var(--line)}
 .note{font-size:13.5px;color:var(--mute);line-height:1.7;margin:8px 0 14px}
 .box{background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:12px;margin-bottom:14px}
@@ -84,8 +96,7 @@ td.n,th.n{text-align:left;font-variant-numeric:tabular-nums}
   .modal{position:static;background:none;display:block!important;padding:0}
   @page{margin:10mm}
   .sheet{max-width:none;border-radius:0;padding:0 6mm;background:#fff}
-  table{table-layout:auto}
-  th.n,td.n{padding-left:8px}
+  .tbl{table-layout:auto}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -145,7 +156,7 @@ td.n,th.n{text-align:left;font-variant-numeric:tabular-nums}
     <div id="items"></div>
   </section>
 
-  <!-- نسخة احتياطية -->
+  <!-- المزامنة والنسخ الاحتياطي -->
   <section id="s-backup">
     <div class="box">
       <h2>المزامنة مع Google Sheets</h2>
@@ -153,7 +164,10 @@ td.n,th.n{text-align:left;font-variant-numeric:tabular-nums}
       <label>رابط التطبيق (Web app URL)</label>
       <input id="sy-url" dir="ltr" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
       <label>كلمة السر</label>
-      <input id="sy-key" dir="ltr" type="password" autocomplete="off">
+      <div class="keyrow">
+        <input id="sy-key" dir="ltr" type="password" autocomplete="off">
+        <button class="btn alt" type="button" onclick="toggleKey(this)">إظهار</button>
+      </div>
       <button class="btn full" onclick="connectSync()">ربط وبدء المزامنة</button>
       <div class="acts" style="margin-top:8px">
         <button class="btn alt" onclick="syncNow(true)">مزامنة الآن</button>
@@ -172,6 +186,9 @@ td.n,th.n{text-align:left;font-variant-numeric:tabular-nums}
 <datalist id="cat"></datalist>
 <datalist id="custlist"></datalist>
 <datalist id="catg"></datalist>
+<datalist id="units">
+  <option value="قطعة"><option value="علبة"><option value="متر"><option value="كرتونة"><option value="كيس"><option value="كيلو">
+</datalist>
 
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
   <div class="sheet" id="sheet"></div>
@@ -187,6 +204,16 @@ td.n,th.n{text-align:left;font-variant-numeric:tabular-nums}
 
 <script>
 const KEY = 'shop-invoices-v1';
+const CRED = 'shop-sync-creds'; /* الرابط وكلمة السر: مفتاح مستقل لا يُمسح عند فصل الربط */
+
+/* بيانات المحل في الفاتورة */
+const SHOP = 'القبائلي للامونيوم ومستلزماته';
+const PHONE = '0925776093';
+const TITLE = 'فاتورة مبيعات أجل';
+const NOTE1 = 'جاء تأكد من البضاعة تاريخ استلامها';
+const NOTE2 = 'ملاحظة البضاعة المباعة لاترد ولا تستبدل';
+const ADDR = 'اجدابيا - جزيرة طبرق';
+
 let db = { invoices: [], items: [], next: 1, sync: null, queue: [], itemsDirty: false };
 let draft = [];
 const mem = {};
@@ -207,6 +234,8 @@ async function save() {
   try { localStorage.setItem(KEY, raw); ok = true; } catch (e) {}
   return ok;
 }
+function getCred() { try { return JSON.parse(localStorage.getItem(CRED)) || {}; } catch (e) { return {}; } }
+function setCred(c) { try { localStorage.setItem(CRED, JSON.stringify(c)); } catch (e) {} }
 
 /* ---------- أدوات ---------- */
 const AR = '٠١٢٣٤٥٦٧٨٩';
@@ -218,7 +247,9 @@ function num(v) {
   const n = parseFloat(s);
   return isNaN(n) ? 0 : n;
 }
-const fmt = n => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const fmt = n => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 3 });
+/* مبالغ الفاتورة بثلاث خانات عشرية مثل 35.000 */
+const fmtD = n => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const today = () => new Date().toLocaleDateString('en-CA');
 const $ = id => document.getElementById(id);
@@ -237,8 +268,9 @@ function tab(t) {
 }
 
 /* ---------- فاتورة جديدة ---------- */
+const newLine = () => ({ name: '', qty: '1', unit: '', price: '' });
 function resetDraft() {
-  draft = [{ name: '', qty: '1', price: '' }];
+  draft = [newLine()];
   $('inv-no').value = db.next;
   $('inv-date').value = today();
   $('inv-cust').value = '';
@@ -252,19 +284,37 @@ function renderLines() {
       <input list="cat" placeholder="اسم الصنف" value="${esc(l.name)}" oninput="setLine(${i},'name',this)" autocomplete="off">
       <div class="row3">
         <div><label>الكمية</label><input inputmode="decimal" value="${esc(l.qty)}" oninput="setLine(${i},'qty',this)"></div>
-        <div><label>السعر</label><input inputmode="decimal" value="${esc(l.price)}" oninput="setLine(${i},'price',this)"></div>
-        <div class="val">القيمة<b id="v${i}">${fmt(num(l.qty) * num(l.price))}</b></div>
+        <div><label>الوحدة</label><input data-f="unit" list="units" placeholder="قطعة" value="${esc(l.unit)}" oninput="setLine(${i},'unit',this)" autocomplete="off"></div>
+        <div><label>السعر</label><input data-f="price" inputmode="decimal" value="${esc(l.price)}" oninput="setLine(${i},'price',this)"></div>
       </div>
+      <div class="vline"><span>القيمة</span><b id="v${i}">${fmt(num(l.qty) * num(l.price))}</b></div>
       ${draft.length > 1 ? `<button class="x" onclick="delLine(${i})">حذف الصنف</button>` : ''}
     </div>`).join('');
 }
-function addLine() { draft.push({ name: '', qty: '1', price: '' }); renderLines(); const ins = $('lines').querySelectorAll('.line'); ins[ins.length - 1].querySelector('input').focus(); }
+function addLine() {
+  draft.push(newLine());
+  renderLines();
+  const ins = $('lines').querySelectorAll('.line');
+  ins[ins.length - 1].querySelector('input').focus();
+}
 function delLine(i) { draft.splice(i, 1); renderLines(); totals(); }
+/* آخر وحدة استُخدمت لنفس الصنف في فواتير سابقة */
+function lastUnit(name) {
+  for (const inv of db.invoices) { const l = inv.lines.find(x => x.name === name && x.unit); if (l) return l.unit; }
+  return '';
+}
 function setLine(i, f, el) {
   draft[i][f] = el.value;
-  if (f === 'name' && !num(draft[i].price)) {
-    const m = db.items.find(x => x.name === el.value.trim());
-    if (m) { draft[i].price = String(m.price); el.closest('.line').querySelectorAll('input')[2].value = m.price; }
+  if (f === 'name') {
+    const ln = el.closest('.line'), nm = el.value.trim();
+    if (!num(draft[i].price)) {
+      const m = db.items.find(x => x.name === nm);
+      if (m) { draft[i].price = String(m.price); ln.querySelector('[data-f=price]').value = m.price; }
+    }
+    if (!draft[i].unit) {
+      const u = lastUnit(nm);
+      if (u) { draft[i].unit = u; ln.querySelector('[data-f=unit]').value = u; }
+    }
   }
   $('v' + i).textContent = fmt(num(draft[i].qty) * num(draft[i].price));
   totals();
@@ -278,14 +328,20 @@ function totals() {
 }
 async function saveInvoice() {
   const lines = draft.filter(l => l.name.trim() && num(l.qty) > 0 && num(l.price) >= 0)
-    .map(l => ({ name: l.name.trim(), qty: num(l.qty), price: num(l.price) }));
+    .map(l => ({ name: l.name.trim(), qty: num(l.qty), unit: (l.unit || '').trim(), price: num(l.price) }));
   if (!lines.length) { toast('أضف صنفاً واحداً على الأقل بالاسم والكمية'); return; }
-  const inv = { id: Date.now(), no: db.next, date: $('inv-date').value || today(), time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }), customer: $('inv-cust').value.trim(), lines, paid: num($('inv-paid').value) };
+  const inv = {
+    id: Date.now(), no: db.next, date: $('inv-date').value || today(),
+    time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+    customer: $('inv-cust').value.trim(), lines, paid: num($('inv-paid').value)
+  };
   db.invoices.unshift(inv);
   db.next += 1;
   queueOp(inv.id);
   /* الصنف الجديد فقط يُضاف للقائمة، وسعر الصنف الموجود لا يتغير من الفاتورة */
-  lines.forEach(l => { if (!db.items.some(x => x.name === l.name)) { db.items.push({ name: l.name, price: l.price, category: '' }); db.itemsDirty = true; } });
+  lines.forEach(l => {
+    if (!db.items.some(x => x.name === l.name)) { db.items.push({ name: l.name, price: l.price, category: '' }); db.itemsDirty = true; }
+  });
   const ok = await save();
   refreshLists();
   resetDraft();
@@ -313,26 +369,40 @@ function showInvoice(id) {
   const i = db.invoices.find(x => x.id === id); if (!i) return;
   const rem = invRem(i);
   $('sheet').innerHTML = `
-    <div class="shop">القبائلي للامونيوم ومستلزماته</div>
+    <div class="shop">${SHOP}</div>
     <div class="meta">
-      <div class="m-r">هاتف 0925776093</div>
-      <div class="m-c">فاتورة مبيعات أجل</div>
+      <div class="m-r">هاتف: ${PHONE}</div>
+      <div class="m-c">${TITLE}</div>
       <div class="m-l"><div>${esc(i.date)}${i.time ? ' ' + esc(i.time) : ''}</div><div>رقم الفاتورة: ${i.no}</div></div>
     </div>
-    ${i.customer ? `<div class="val">العميل: ${esc(i.customer)}</div>` : ''}
-    <table>
-      <tr><th>الصنف</th><th class="n">الكمية</th><th class="n">السعر</th><th class="n">القيمة</th></tr>
-      ${i.lines.map(l => `<tr><td>${esc(l.name)}</td><td class="n">${fmt(l.qty)}</td><td class="n">${fmt(l.price)}</td><td class="n">${fmt(l.qty * l.price)}</td></tr>`).join('')}
+    ${i.customer ? `<div class="val">العميل: <b style="color:var(--ink)">${esc(i.customer)}</b></div>` : ''}
+    <table class="tbl">
+      <thead><tr>
+        <th class="c">م</th>
+        <th>الوصف<small>DESCRIPTION</small></th>
+        <th class="c">الكمية<small>QTY</small></th>
+        <th class="n">السعر<small>UNIT PRICE</small></th>
+        <th class="n">الإجمالي<small>TOTAL</small></th>
+      </tr></thead>
+      <tbody>
+        ${i.lines.map((l, k) => `<tr>
+          <td class="c">${k + 1}</td>
+          <td>${esc(l.name)}</td>
+          <td class="c">${fmt(l.qty)}${l.unit ? ' ' + esc(l.unit) : ''}</td>
+          <td class="n">${fmtD(l.price)}</td>
+          <td class="n">${fmtD(l.qty * l.price)}</td></tr>`).join('')}
+      </tbody>
+      <tfoot><tr><td colspan="4">إجمالي الفاتورة</td><td class="n">${fmtD(invTotal(i))}</td></tr></tfoot>
     </table>
-    <div class="totals" style="margin:8px 0">
-      <div class="r big"><span>الإجمالي</span><span>${fmt(invTotal(i))}</span></div>
-      <div class="r"><span>المدفوع</span><span>${fmt(i.paid)}</span></div>
-      <div class="r"><span>الرصيد المتبقي</span><span class="${rem > 0 ? 'due' : 'paidok'}">${fmt(rem)}</span></div>
+    <div class="sumrow">
+      <div>الإجمالي<b>${fmtD(invTotal(i))}</b></div>
+      <div>المدفوع<b>${fmtD(i.paid)}</b></div>
+      <div>الرصيد المتبقي<b class="${rem > 0 ? 'due' : 'paidok'}">${fmtD(rem)}</b></div>
     </div>
     <div class="foot">
-      <div>الرجاء التأكد من الفاتورة في نفس يوم استلامها</div>
-      <div>ملاحظة: البضاعة المباعة لا ترد ولا تستبدل</div>
-      <div class="addr">اجدابيا - جزيرة طبرق</div>
+      <div>${NOTE1}</div>
+      <div>${NOTE2}</div>
+      <div class="addr">${ADDR}</div>
     </div>
     <div class="acts">
       <button class="btn" onclick="shareInvoice(${i.id})">مشاركة</button>
@@ -362,9 +432,9 @@ async function delInvoice(id) {
 }
 function invoiceText(i) {
   const rem = invRem(i);
-  return `القبائلي للامونيوم ومستلزماته\nهاتف 0925776093\nفاتورة مبيعات أجل\nرقم الفاتورة: ${i.no}\nالتاريخ: ${i.date}${i.time ? ' ' + i.time : ''}${i.customer ? '\nالعميل: ' + i.customer : ''}\n\n` +
-    i.lines.map(l => `${l.name}: ${fmt(l.qty)} × ${fmt(l.price)} = ${fmt(l.qty * l.price)}`).join('\n') +
-    `\n\nالإجمالي: ${fmt(invTotal(i))}\nالمدفوع: ${fmt(i.paid)}\nالرصيد المتبقي: ${fmt(rem)}\n\nالرجاء التأكد من الفاتورة في نفس يوم استلامها\nملاحظة: البضاعة المباعة لا ترد ولا تستبدل\nاجدابيا - جزيرة طبرق`;
+  return `${SHOP}\nهاتف: ${PHONE}\n${TITLE}\nرقم الفاتورة: ${i.no}\nالتاريخ: ${i.date}${i.time ? ' ' + i.time : ''}${i.customer ? '\nالعميل: ' + i.customer : ''}\n\n` +
+    i.lines.map((l, k) => `${k + 1}. ${l.name}: ${fmt(l.qty)}${l.unit ? ' ' + l.unit : ''} × ${fmtD(l.price)} = ${fmtD(l.qty * l.price)}`).join('\n') +
+    `\n\nالإجمالي: ${fmtD(invTotal(i))}\nالمدفوع: ${fmtD(i.paid)}\nالرصيد المتبقي: ${fmtD(rem)}\n\n${NOTE1}\n${NOTE2}\n${ADDR}`;
 }
 async function shareInvoice(id) {
   const i = db.invoices.find(x => x.id === id); const t = invoiceText(i);
@@ -420,7 +490,11 @@ async function editItem(k, f, v) {
   if (f === 'category') renderItems();
   flush();
 }
-async function delItem(k) { if (!confirm('حذف هذا الصنف من القائمة؟ الفواتير السابقة لا تتأثر.')) return; db.items.splice(k, 1); db.itemsDirty = true; await save(); refreshLists(); renderItems(); flush(); }
+async function delItem(k) {
+  if (!confirm('حذف هذا الصنف من القائمة؟ الفواتير السابقة لا تتأثر.')) return;
+  db.items.splice(k, 1); db.itemsDirty = true;
+  await save(); refreshLists(); renderItems(); flush();
+}
 function refreshLists() {
   $('cat').innerHTML = db.items.map(i => `<option value="${esc(i.name)}" label="${esc(i.category || '')}"></option>`).join('');
   const cats = [...new Set(db.items.map(i => i.category).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ar'));
@@ -440,8 +514,10 @@ let syncing = false, syncErr = '', lastSync = '';
 const syncOn = () => !!(db.sync && db.sync.url && db.sync.key);
 const pendingCount = () => (db.queue || []).length + (db.itemsDirty ? 1 : 0);
 const errMsg = e => e.name === 'AbortError' ? 'انتهت مهلة الاتصال'
+  : !navigator.onLine ? 'لا يوجد اتصال بالإنترنت'
   : e instanceof SyntaxError ? 'الرابط غير صحيح أو لم يُنشر السكربت للجميع'
-  : /fetch|network|load failed/i.test(e.message) ? 'لا يوجد اتصال بالإنترنت' : e.message;
+  : e instanceof TypeError ? 'تعذر الوصول للسكربت. تأكد أن الوصول «أي شخص» وأن الرابط ينتهي بـ /exec'
+  : e.message;
 
 /* عملية مؤجلة لفاتورة: إرسال أو حذف. آخر عملية لنفس الفاتورة تحل محل ما قبلها */
 function queueOp(id, del) {
@@ -526,34 +602,47 @@ async function syncNow(manual, pull = true) {
   }
 }
 const flush = () => syncNow(false, false);
+
+function toggleKey(b) {
+  const k = $('sy-key'), show = k.type === 'password';
+  k.type = show ? 'text' : 'password';
+  b.textContent = show ? 'إخفاء' : 'إظهار';
+}
 function renderSync() {
   const st = $('sync-st'); if (!st) return;
-  if (!syncOn()) st.textContent = 'غير مربوط. البيانات على هذا الجوال فقط.';
-  else {
+  /* إذا كان الجوال مربوطاً نحفظ بياناته في المخزن المستقل لتُعبّأ تلقائياً لاحقاً */
+  if (syncOn()) setCred({ url: db.sync.url, key: db.sync.key });
+  const c = syncOn() ? db.sync : getCred();
+  if (!syncOn()) {
+    st.textContent = c.url
+      ? 'غير مربوط. البيانات السابقة معبأة، اضغط «ربط وبدء المزامنة».'
+      : 'غير مربوط. البيانات على هذا الجوال فقط.';
+  } else {
     const n = pendingCount();
     st.textContent = syncErr ? 'تعذرت المزامنة: ' + syncErr
       : n ? 'مربوط. بانتظار الإرسال: ' + n
       : 'مربوط ومتزامن' + (lastSync ? '، آخر مزامنة ' + lastSync : '');
-    if (document.activeElement !== $('sy-url')) $('sy-url').value = db.sync.url;
-    $('sy-key').placeholder = 'محفوظة (اتركها فارغة)';
   }
+  const a = document.activeElement;
+  if (a !== $('sy-url') && a !== $('sy-key')) { $('sy-url').value = c.url || ''; $('sy-key').value = c.key || ''; }
 }
 async function connectSync() {
   const url = $('sy-url').value.trim();
-  const key = $('sy-key').value.trim() || (db.sync ? db.sync.key : '');
+  const key = $('sy-key').value.trim() || (db.sync ? db.sync.key : '') || getCred().key || '';
   if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)) { toast('الرابط يجب أن يبدأ بـ https://script.google.com وينتهي بـ /exec'); return; }
   if (!key) { toast('اكتب كلمة السر'); return; }
   const prev = db.sync;
   db.sync = { url, key };
   try { await api({ action: 'ping' }); }
   catch (e) { db.sync = prev; toast('فشل الربط: ' + errMsg(e)); renderSync(); return; }
-  $('sy-key').value = '';
+  setCred({ url, key });
   await save();
   syncNow(true);
 }
 async function disconnectSync() {
   if (!syncOn()) return;
   if (!confirm('فصل الربط مع الشيت؟ بياناتك تبقى على الجوال وفي الشيت.')) return;
+  setCred({ url: db.sync.url, key: db.sync.key }); /* يبقى الرابط وكلمة السر محفوظين للتعبئة التلقائية */
   db.sync = null; db.queue = []; db.itemsDirty = false; syncErr = '';
   await save(); refreshLists(); renderSync(); toast('تم فصل الربط');
 }
@@ -577,7 +666,11 @@ function importData(ev) {
       const d = JSON.parse(r.result);
       if (!Array.isArray(d.invoices) || !Array.isArray(d.items)) throw 0;
       if (!confirm('سيتم استبدال البيانات الحالية بالنسخة المسترجعة. متابعة؟')) return;
-      db = { invoices: d.invoices, items: d.items, next: d.next || (d.invoices.reduce((m, i) => Math.max(m, i.no), 0) + 1), sync: db.sync, queue: [], itemsDirty: true };
+      db = {
+        invoices: d.invoices, items: d.items,
+        next: d.next || (d.invoices.reduce((m, i) => Math.max(m, i.no), 0) + 1),
+        sync: db.sync, queue: [], itemsDirty: true
+      };
       d.invoices.forEach(i => queueOp(i.id));
       await save(); refreshLists(); resetDraft(); toast('تم استرجاع البيانات');
       flush();
